@@ -1,0 +1,97 @@
+{
+  "_meta": {
+    "scale": "All attributes and personality traits are 0-100.",
+    "provenance": "Ratings are hand-estimated from each player's peak season. They are NOT scraped yet. The plan is to replace/derive them from messivsronaldo.app detailed stats (see README > Data roadmap). Only the reference numbers under 'reference' are factual season totals.",
+    "schema_version": 1
+  },
+  "players": [
+    {
+      "id": "messi",
+      "name": "Lionel Messi",
+      "era": "2011-12 (Barcelona)",
+      "height_cm": 170,
+      "reference": {
+        "season": "2011-12",
+        "appearances_all_comps": 60,
+        "goals_all_comps": 73
+      },
+      "attributes": {
+        "pace": 90,
+        "acceleration": 96,
+        "dribbling": 98,
+        "ball_control": 97,
+        "agility": 96,
+        "balance": 97,
+        "short_passing": 92,
+        "long_passing": 84,
+        "vision": 94,
+        "crossing": 80,
+        "finishing": 95,
+        "shot_power": 80,
+        "long_shots": 86,
+        "heading": 55,
+        "jumping": 68,
+        "strength": 60,
+        "stamina": 82,
+        "tackling": 32,
+        "interceptions": 40,
+        "marking": 25,
+        "free_kicks": 84,
+        "penalties": 78,
+        "composure": 96
+      },
+      "personality": {
+        "selfishness": 40,
+        "ego": 35,
+        "patience": 90,
+        "teamplay": 95,
+        "work_rate": 60,
+        "clutch": 85
+      }
+    },
+    {
+      "id": "ronaldo",
+      "name": "Cristiano Ronaldo",
+      "era": "2013-14 (Real Madrid)",
+      "height_cm": 187,
+      "reference": {
+        "season": "2013-14",
+        "appearances_all_comps": 47,
+        "goals_all_comps": 51
+      },
+      "attributes": {
+        "pace": 94,
+        "acceleration": 91,
+        "dribbling": 89,
+        "ball_control": 90,
+        "agility": 88,
+        "balance": 82,
+        "short_passing": 82,
+        "long_passing": 74,
+        "vision": 80,
+        "crossing": 82,
+        "finishing": 95,
+        "shot_power": 96,
+        "long_shots": 92,
+        "heading": 92,
+        "jumping": 95,
+        "strength": 82,
+        "stamina": 90,
+        "tackling": 30,
+        "interceptions": 30,
+        "marking": 28,
+        "free_kicks": 85,
+        "penalties": 88,
+        "composure": 92
+      },
+      "personality": {
+        "selfishness": 85,
+        "ego": 90,
+        "patience": 45,
+        "teamplay": 65,
+        "work_rate": 40,
+        "clutch": 92
+      }
+    }
+  ]
+}

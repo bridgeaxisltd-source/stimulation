@@ -1,0 +1,12 @@
+[project]
+name = "stimulation"
+version = "0.1.0"
+description = "Monte Carlo football simulator: 11 prime Messis vs 11 prime Ronaldos"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+stimulation = "stimulation.__main__:main"
+
+[tool.setuptools]
+packages = ["stimulation"]
