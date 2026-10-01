@@ -6,13 +6,15 @@ from dataclasses import replace
 
 from stimulation import MatchEngine, Team, load_players, run_simulations
 from stimulation.data_loader import DEFAULT_DATA_PATH, PlayerDataError
+from stimulation.calibrate import run_checks
+from stimulation.derive import apply_stats, interpolate
 from stimulation.models import PERSONALITY_KEYS
 
 
 class PlayerDataTests(unittest.TestCase):
     def test_default_data_loads_both_players(self):
         players = load_players()
-        self.assertEqual(set(players), {"messi", "ronaldo"})
+        self.assertEqual(set(players), {"messi", "ronaldo", "baseline"})
 
     def test_out_of_range_attribute_is_rejected(self):
         with open(DEFAULT_DATA_PATH, encoding="utf-8") as fh:
@@ -24,9 +26,36 @@ class PlayerDataTests(unittest.TestCase):
             load_players(tmp.name)
 
 
+class DeriveTests(unittest.TestCase):
+    def test_interpolate_clamps_and_blends(self):
+        anchors = [(0.0, 50), (1.0, 70), (2.0, 90)]
+        self.assertEqual(interpolate(-1, anchors), 50)
+        self.assertEqual(interpolate(1.5, anchors), 80)
+        self.assertEqual(interpolate(5, anchors), 90)
+
+    def test_ratings_follow_the_real_stats(self):
+        players, report = apply_stats(load_players())
+        m, r = players["messi"], players["ronaldo"]
+        # messivsronaldo.app: 4.43 vs 2.00 dribbles/90, 0.20 vs 1.38 aerials/90, 76.5% vs 83.6% pens.
+        self.assertGreater(m.attr("dribbling"), r.attr("dribbling"))
+        self.assertGreater(r.attr("heading"), m.attr("heading"))
+        self.assertGreater(r.attr("penalties"), m.attr("penalties"))
+        sources = {row.key: row.source for row in report["messi"]}
+        self.assertTrue(sources["dribbling"].startswith("derived"))
+        self.assertEqual(sources["pace"], "estimate")
+
+
+class CalibrationTests(unittest.TestCase):
+    def test_engine_reproduces_real_benchmarks(self):
+        players, _ = apply_stats(load_players())
+        failed = [f"{c.group}/{c.name}={c.value:.3f}" for c in run_checks(players, matches=1200, workers=2)
+                  if not c.ok]
+        self.assertEqual(failed, [])
+
+
 class EngineTests(unittest.TestCase):
     def setUp(self):
-        p = load_players()
+        p, _ = apply_stats(load_players())
         self.messi = Team("Messi", p["messi"])
         self.ronaldo = Team("Ronaldo", p["ronaldo"])
 

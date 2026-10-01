@@ -1,0 +1,55 @@
+{
+  "_source": {
+    "url": "https://www.messivsronaldo.app/detailed-stats/",
+    "site_last_updated": "2026-09-28",
+    "captured": "2026-10-01",
+    "method": "Transcribed by hand from screenshots of the page. Replace with the scraper output once it exists.",
+    "caveat": "These are CAREER figures, not peak-season figures. Ronaldo's career includes more post-prime seasons (Juventus, Man Utd, Al Nassr) and Messi's includes PSG/Inter Miami, so both are diluted vs their primes."
+  },
+  "players": {
+    "messi": {
+      "goal_contributions": {"total": 1355, "minutes_per": 71, "scope": "all time career"},
+      "hat_tricks": {"total": 62, "games_per": 19.0, "scope": "all time career"},
+      "penalties": {"scored": 114, "taken": 149, "scope": "all time career"},
+      "free_kick_goals": {"total": 76, "games_per": 15.5, "scope": "all time career"},
+      "outside_box_goals_open_play": {"total": 109, "games_per": 10.8, "scope": "all time career"},
+      "key_passes": {"total": 1544, "per90": 2.49, "scope": "league + UCL since 09/10"},
+      "big_chances_created": {"total": 419, "per90": 0.80, "scope": "league + UCL since 10/11"},
+      "accurate_throughballs": {"total": 505, "per90": 0.82, "scope": "league + UCL since 09/10"},
+      "successful_dribbles": {"total": 3302, "per90": 4.43, "scope": "league + UCL since 03/04"},
+      "shots": {"total": 3139, "shots_per_goal": 5.45, "scope": "league + UCL since 09/10"},
+      "xg": {"total": 219.91, "goals_minus_xg": 33.09, "scope": "league since 14/15"},
+      "xa": {"total": 129.86, "assists_minus_xa": -1.86, "scope": "league since 14/15"},
+      "aerial_duels_won": {"total": 121, "per90": 0.20, "scope": "league + UCL since 09/10"},
+      "average_match_rating": {"value": 8.48, "scope": "league + UCL since 09/10"},
+      "man_of_the_match": {"awards": 333, "matches": 657, "scope": "league + UCL since 09/10"},
+      "non_penalty_goals": {"total": 817, "penalty_share": 0.122, "scope": "all time career"},
+      "el_clasico_goal_contributions": {"total": 40, "minutes_per": 98},
+      "ucl_knockout_goal_contributions": {"total": 61, "minutes_per": 109},
+      "finals_goal_contributions": {"total": 54, "minutes_per": 91, "scope": "club & country"},
+      "all_goals_incl_youth": {"total": 958, "per_game": 0.78}
+    },
+    "ronaldo": {
+      "goal_contributions": {"total": 1240, "minutes_per": 88, "scope": "all time career"},
+      "hat_tricks": {"total": 66, "games_per": 20.3, "scope": "all time career"},
+      "penalties": {"scored": 184, "taken": 220, "scope": "all time career"},
+      "free_kick_goals": {"total": 65, "games_per": 20.6, "scope": "all time career"},
+      "outside_box_goals_open_play": {"total": 72, "games_per": 18.6, "scope": "all time career"},
+      "key_passes": {"total": 890, "per90": 1.66, "scope": "league + UCL since 09/10"},
+      "big_chances_created": {"total": 179, "per90": 0.36, "scope": "league + UCL since 10/11"},
+      "accurate_throughballs": {"total": 81, "per90": 0.15, "scope": "league + UCL since 09/10"},
+      "successful_dribbles": {"total": 1726, "per90": 2.00, "scope": "league + UCL since 03/04"},
+      "shots": {"total": 3447, "shots_per_goal": 6.43, "scope": "league + UCL since 09/10"},
+      "xg": {"total": 229.38, "goals_minus_xg": 4.62, "scope": "league since 14/15"},
+      "xa": {"total": 52.08, "assists_minus_xa": 4.92, "scope": "league since 14/15"},
+      "aerial_duels_won": {"total": 737, "per90": 1.38, "scope": "league + UCL since 09/10"},
+      "average_match_rating": {"value": 7.90, "scope": "league + UCL since 09/10"},
+      "man_of_the_match": {"awards": 168, "matches": 561, "scope": "league + UCL since 09/10"},
+      "non_penalty_goals": {"total": 795, "penalty_share": 0.188, "scope": "all time career"},
+      "el_clasico_goal_contributions": {"total": 19, "minutes_per": 133},
+      "ucl_knockout_goal_contributions": {"total": 82, "minutes_per": 91},
+      "finals_goal_contributions": {"total": 27, "minutes_per": 137, "scope": "club & country"},
+      "all_goals_incl_youth": {"total": 997, "per_game": 0.73}
+    }
+  }
+}

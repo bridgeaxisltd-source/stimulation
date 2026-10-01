@@ -37,7 +37,7 @@ def format_summary(s: SimulationSummary) -> str:
     else:
         lines.append(f"  Went to penalties: {100 * s.shootouts / s.matches:.1f}%")
 
-    lines += ["", "AVERAGE MATCH", f"  {'':<22}{a[:16]:>16}{b[:16]:>16}"]
+    lines += ["", "AVERAGE MATCH", f"  {'':<22}{a[:18]:>18}{b[:18]:>18}"]
     rows = [
         ("Goals", lambda i: f"{s.avg(i, 'goals'):.2f}"),
         ("xG", lambda i: f"{s.avg(i, 'xg'):.2f}"),
@@ -47,13 +47,16 @@ def format_summary(s: SimulationSummary) -> str:
         ("Pass accuracy", lambda i: f"{_ratio(s, i, 'passes_completed', 'passes_attempted'):.1f}%"),
         ("Passes", lambda i: f"{s.avg(i, 'passes_attempted'):.0f}"),
         ("Dribble success", lambda i: f"{_ratio(s, i, 'dribbles_completed', 'dribbles_attempted'):.1f}%"),
+        ("Crosses (completed)", lambda i: f"{s.avg(i, 'crosses_attempted'):.1f} ({_ratio(s, i, 'crosses_completed', 'crosses_attempted'):.0f}%)"),
         ("Aerial duels won", lambda i: f"{s.avg(i, 'aerials_won'):.1f}"),
+        ("Ball won straight back", lambda i: f"{s.avg(i, 'recoveries'):.1f}"),
         ("Fouls won", lambda i: f"{s.avg(i, 'fouls_won'):.1f}"),
+        ("Penalties won", lambda i: f"{s.avg(i, 'penalties'):.2f}"),
         ("Corners", lambda i: f"{s.avg(i, 'corners'):.1f}"),
         ("Counter-attacks", lambda i: f"{s.avg(i, 'counters'):.1f}"),
     ]
     for label, fn in rows:
-        lines.append(f"  {label:<22}{fn(0):>16}{fn(1):>16}")
+        lines.append(f"  {label:<22}{fn(0):>18}{fn(1):>18}")
 
     lines += ["", "HOW THE GOALS CAME"]
     for i, name in enumerate(s.names):

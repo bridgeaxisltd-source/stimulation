@@ -73,11 +73,31 @@ class PlayerProfile:
         return max(0.0, min(100.0, (self.height_cm - 160) * 3.0))
 
 
+# The "average top-flight starter" every rating is measured against. The engine
+# is calibrated so two teams of these reproduce real league averages.
+BASELINE_ATTRIBUTE = 70
+BASELINE_TRAIT = 50
+BASELINE_HEIGHT_CM = 181
+
+
+def baseline_profile() -> PlayerProfile:
+    return PlayerProfile(
+        id="baseline",
+        name="Average Starter",
+        era="calibration baseline",
+        height_cm=BASELINE_HEIGHT_CM,
+        attributes={k: BASELINE_ATTRIBUTE for k in ATTRIBUTE_KEYS},
+        personality={k: BASELINE_TRAIT for k in PERSONALITY_KEYS},
+    )
+
+
 @dataclass(frozen=True)
 class Team:
     name: str
     player: PlayerProfile
     formation: str = "4-3-3"
+    # False = an outfield clone is in goal (the Messi/Ronaldo setup).
+    trained_keeper: bool = False
 
     def __post_init__(self) -> None:
         if self.formation not in FORMATIONS:

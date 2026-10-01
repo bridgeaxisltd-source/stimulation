@@ -1,129 +1,147 @@
-# stimulation ⚽ 11 prime Messis vs 11 prime Ronaldos
+# stimulation ⚽ 11 Messis vs 11 Ronaldos
 
-This is a Monte Carlo football simulator. Every outfield spot and the goalkeeper
-spot on one team is **2011-12 Messi**, and every spot on the other is
-**2013-14 Ronaldo**. The engine plays thousands of matches using each player's
-ability *and* personality (ego, patience, selfishness, work rate, clutch), then
-reports who comes out on top and why.
+A Monte Carlo football simulator. Every position on one team, keeper included,
+is **Messi**, and every position on the other is **Ronaldo**. The ratings come
+from their **all-time career stats** on
+[messivsronaldo.app](https://www.messivsronaldo.app/detailed-stats/). The engine
+is calibrated against real football numbers, and it reports who wins and why.
 
 Pure Python 3.10+, no dependencies.
 
 ```bash
-python -m stimulation                      # 2,000 matches, league rules (draws allowed)
-python -m stimulation -n 10000             # more matches = tighter confidence interval
-python -m stimulation --knockout           # extra time + penalty shootout, always a winner
-python -m stimulation --single --seed 7    # one match with the goal log
-python -m stimulation --neutral-personality   # every trait set to 50: ability only, no ego
-python -m stimulation --home-formation 4-2-3-1 --away-formation 3-5-2
-python -m stimulation --away messi         # mirror match (sanity check: should be ~even)
-python -m stimulation --json > results.json
-python -m unittest discover -s tests       # run the tests
+python -m stimulation                        # 2,000 matches, league rules (draws allowed)
+python -m stimulation -n 10000 --knockout    # extra time + penalties, always a winner
+python -m stimulation --single --seed 7      # one match with the goal log
+python -m stimulation --show-ratings         # every rating + whether it came from data or an estimate
+python -m stimulation --calibrate            # check the engine against real-world benchmarks
+python -m stimulation --neutral-personality  # every trait set to 50: ability only, no ego
+python -m stimulation --estimates-only       # ignore the real stats, use hand estimates
+python -m stimulation --away messi           # mirror match (sanity check: should be ~even)
+python -m unittest discover -s tests
 ```
 
-## Current result (v0.1, 10,000 matches, seed 42)
+## Current result (v0.2, 10,000 matches, seed 42)
 
 | | Team Messi | Team Ronaldo |
 |---|---|---|
-| **Win rate** | 29.6% | **55.4%** (draw 15.0%) |
-| Knockout win rate | 34.9% | **65.1%** |
-| Goals / xG | 3.30 / 3.29 | 4.07 / 3.73 |
-| Possession | **58%** | 42% |
-| Pass accuracy | **78%** | 63% |
-| Aerial duels won | 27.5 | **46.5** |
-| Goals from headers | 1% | **30%** |
+| **Win rate** | **52.7%** | 31.6% (draw 15.8%) |
+| Knockout win rate | **60.3%** | 39.7% |
+| Goals / xG | 4.15 / 3.64 | 3.50 / 2.66 |
+| Possession | **63%** | 37% |
+| Pass accuracy | **89%** | 81% |
+| Penalties won | **0.75** | 0.27 |
+| Aerial duels won | 12.1 | **23.5** |
+| Goals from headers | 4% | **35%** |
 
-**What the model says:** the Messis control the ball, but the Ronaldos win the
-match. With nobody on the pitch who can truly defend, possession matters less
-than turning chances into goals, and the Ronaldos get a whole extra way to score
-(crosses, corners and headers) that the Messis can neither use nor stop.
-Setting every personality trait to neutral (`--neutral-personality`) narrows
-it only slightly (34.5% vs 51.2%), so in this model the gap comes from
-**physical ability, especially in the air**, not from ego.
+**What the model says:** the Messis win, but not by a landslide. They keep the
+ball, win more fouls and penalties, and turn more of their chances into high-quality
+shots. The Ronaldos still have a real threat: about a third of their goals are
+headers. Even so, crosses complete less than 40% of the time against anyone, so
+that route can't make up for having the ball only 37% of the time.
 
-> These ratings are hand-estimated, so treat the result as a hypothesis,
-> not a verdict. Changing a few numbers in `data/players.json` can move it.
-> Making those numbers data-driven is the next milestone (see Roadmap).
+**The data decided it, not me.** The same engine with my old hand-estimated
+ratings (`--estimates-only`) gives Ronaldo 50%, Messi 34%. Switching to the
+messivsronaldo.app numbers flipped it. Messi's real edges are 4.43 vs 2.00
+successful dribbles per 90, 0.82 vs 0.15 through balls, 0.80 vs 0.36 big chances
+created, and +33 goals above xG vs +4.6. They outweigh Ronaldo's edges of 1.38 vs
+0.20 aerials and 83.6% vs 76.5% penalties.
 
-## How it works
+Ego barely matters: with every personality trait set to neutral it's 51% vs 35%.
 
-```
-data/players.json ──► data_loader.py ──► PlayerProfile (attributes + personality)
-                                               │
-                         models.py: Team = player × formation (4-3-3, 4-4-2, 3-5-2, 4-2-3-1)
-                                               │
-                     engine.py: MatchEngine.play()  ◄── one seeded random.Random per match
-                                               │
-                 monte_carlo.py: run N matches (parallel) ─► SimulationSummary
-                                               │
-                         report.py: terminal table / JSON
-```
+## Where the numbers come from
 
-### 1. The pitch is 5 zones, not x/y coordinates
-Zones are always seen from the team on the ball:
-`0 own box → 1 own third → 2 midfield → 3 final third → 4 opponent's box`.
-When the ball is lost the zone is mirrored (`4 - zone`), so if you lose it in
-your final third (zone 3), the other team picks it up in their own third (zone 1).
-A full 2D physics engine would look nicer but would be much slower. It would also
-not be more *accurate* until we have positional data to calibrate it.
+### 1. Real stats → ratings (`stimulation/derive.py`)
+`data/stats/messivsronaldo_detailed.json` holds the site's career numbers (site
+updated 28 Sep 2026). Each data-backed rating comes from one stat through a
+piecewise-linear scale, and `--show-ratings` prints the trail:
 
-### 2. Each step: choose an action (`_choose_action`)
-Each zone has base weights for `short_pass`, `through_ball`, `dribble`,
-`long_ball`, `cross` and `shot`. Those weights are then bent by:
-- **attributes**: good dribblers dribble more (`(dribbling/80)²`), and teams with
-  aerial power cross more (`(aerial/70)²`)
-- **personality**:
-  - `patience` and `teamplay` add more short passes
-  - `selfishness` adds more shots
-  - `ego` is the **ego modifier** from the original plan: up to ×1.5 more
-    long-range shots from the final third, whatever the passing lanes look like
-  - `clutch` adds more shots after 75' when level or behind
+| Rating | Stat | Messi → rating | Ronaldo → rating |
+|---|---|---|---|
+| dribbling | successful dribbles /90 | 4.43 → 99 | 2.00 → 85 |
+| vision | accurate through balls /90 | 0.82 → 98 | 0.15 → 73 |
+| short passing | key passes /90 | 2.49 → 95 | 1.66 → 84 |
+| finishing | goals per shot | 0.183 → 92 | 0.156 → 86 |
+| composure | goals above xG | +15% → 97 | +2% → 87 |
+| long shots | open-play outside-box goals / game | 0.093 → 94 | 0.054 → 83 |
+| free kicks | FK goals / game | 0.065 → 92 | 0.049 → 84 |
+| penalties | conversion | 76.5% → 80 | 83.6% → 90 |
+| heading | aerial duels won /90 | 0.20 → 49 | 1.38 → 84 |
+| selfishness | shots ÷ (shots + key passes) | 67% → 64 | 80% → 89 |
+| teamplay | big chances created /90 | 0.80 → 95 | 0.36 → 74 |
+| clutch | G+A /90 in finals & UCL KOs | 0.91 → 89 | 0.82 → 83 |
 
-### 3. Resolve it as a duel (`_contest`)
-`P(success) = sigmoid(base + (attack_rating − defence_rating − 50) / 25)`.
-Ratings are composites. For example, dribble is `0.45·dribbling + 0.2·agility +
-0.2·balance + 0.15·acceleration`, and the defender's tackle rating mixes
-tackling, strength, pace and marking. Several modifiers then shift the logit:
-- **zone congestion**: the box is packed, so everything is harder there
-- **defensive cover**: comes from the formation (more defenders → harder)
-- **pressing**: the opponent's `work_rate`, which only applies when you build from the back
-- **ego crowding**: high-ego teams fight over the same central spaces, so their
-  passes near goal fail more often
-- **fatigue**: from `stamina`, and it costs more for high `work_rate` teams
+**12 of the 29 ratings per player come from data.** The other 17 have no stat
+on the site behind them and are still my estimates: pace, strength, jumping,
+tackling, ego, patience, work rate and so on. Height is real.
 
-### 4. Set pieces and transitions
-- Failed dribbles can **draw fouls**: free kicks, plus a penalty in the box.
-  This favours the Messis, who won 13 fouls a game vs 9.
-- **Corners** come from saves, blocks and cleared crosses. Low-aerial teams play
-  them short, which is what the Messis do.
-- **Counter-attacks** after a turnover depend on the winner's pace and
-  directness (`1.5 − patience`) and on how lazy the losing team's `work_rate` is.
-- **Goalkeeper**: an outfield player, rated at 60% of a mix of jumping, agility,
-  composure and height. Height also helps against headers and long shots.
+### 2. Calibration (`stimulation/calibrate.py`, `data/benchmarks.json`)
+Every duel is measured **relative to an average top-flight starter**. Run
+`--calibrate` and the engine has to pass all of these:
 
-### 5. Monte Carlo (`monte_carlo.py`)
-Match `i` uses `Random(seed * 1_000_003 + i)`, so results can be reproduced
-exactly and parallel runs equal serial runs. Teams take turns kicking off.
-The win rate is reported with a 95% confidence interval: if the intervals of
-two teams overlap, you haven't simulated enough matches to call a winner.
+| Check | Engine | Real-world target | Source |
+|---|---|---|---|
+| Avg vs avg: goals per team | 1.44 | 1.2–1.6 | top-5 leagues 2025/26 |
+| Avg vs avg: crosses per team | 11.4 | 8–15 | PL: 22.4 per match |
+| Avg vs avg: cross completion | 21.6% | 17–27% | PL: 21.7% |
+| Avg vs avg: headed goal share | 22.5% | 12–24% | PL: 16.3–21.3% |
+| Avg vs avg: shots per goal | 9.6 | 7.5–11.5 | league norms |
+| 11 Messis: dribble success | 63% | 55–68% | Opta: 57.2% / 66.0% |
+| 11 Messis: shots per goal | 4.7 | 4.6–6.6 | site: 5.45 |
+| 11 Ronaldos: shots per goal | 6.9 | 5.4–7.6 | site: 6.43 |
+| 11 Messis: pass accuracy | 86% | 84–94% | Pep's Barça 89.6% |
+| 11 Messis: possession vs avg | 58% | 55–80% | Pep's Barça 66–73% |
+
+Two checks matter most. The **average vs average** checks make a normal match look
+normal. The **per-player** checks fix how much an elite rating is worth. Without
+the second set, an early version gave Messi 94% dribble success and 11 goals a
+game. That broke against Messi's real numbers: even the best dribbler ever beats
+his man only about 6 times in 10.
+
+**Judgement call, out in the open:** the possession floor started at 62% ("11
+Messis should match Pep's Barça"). After pass accuracy was anchored to real
+rates, the engine gave 58%. I lowered the floor to 55% instead of forcing the
+number up, because Pep's Barça also had Xavi, Iniesta and Busquets, who were
+better pure passers and defenders than Messi.
+
+## How the engine works (`stimulation/engine.py`)
+- **5 zones** (own box → opponent box), always seen from the team on the ball.
+  When the ball is lost, the zone is mirrored.
+- **Choosing an action:** the player on the ball picks a pass, through ball,
+  dribble, long ball, cross or shot. Base weights per zone are bent by stats and
+  personality: patience means more recycling, selfishness means more shots, and
+  ego means more long shots (up to ×1.5).
+- **Resolving it:** `P(win) = sigmoid(base + (attack − defence) / 50)`, using
+  ratings relative to an average starter. `base` is the average-vs-average rate,
+  and the slope (50) is anchored to the real Messi/Ronaldo per-action rates.
+- **What decides possession** is technique, not muscle:
+  - **press resistance** (control, agility, balance, composure)
+  - **counter-pressing** (work rate: winning the ball back right after losing it)
+  - **patience** (recycle the ball rather than force it forward)
+- **Physical stuff matters where it should:** aerial duels (heading, jumping,
+  strength, height), keeper reach, and pace on counter-attacks.
+- **Set pieces:** fouls drawn by dribblers, penalties, short corners for teams
+  that are weak in the air, and outfield players in goal (×1.3 penalty, height
+  helps against high balls).
 
 ## Honest limitations
-- **The ratings are my estimates**, not scraped data. Only `reference` (season
-  goals/apps) contains real numbers.
-- Calibration aims for believable totals: about 22-33 shots and 3-4 goals per
-  team. The total is high on purpose: there are 22 attackers, no real
-  defenders and outfield players in goal.
-- The model doesn't simulate individual positions *within* a zone, off-ball
-  runs, offsides, cards or substitutions.
+- **Career stats, not prime seasons.** Both players' numbers include
+  post-peak years (Ronaldo at Juventus, Man Utd and Al Nassr; Messi at PSG and
+  Inter Miami). Prime-season figures from search snippets show the same picture:
+  Messi 2011-12 had 222 successful dribbles and 125 key passes, while Ronaldo
+  2013-14 had 92 dribbles and 70 key passes. They aren't used until the scraper
+  can verify them.
+- 17 of 29 ratings per player are still estimates. Ronaldo's `work_rate` (40)
+  and Messi's (60) matter for possession and aren't backed by data yet.
+- **Transcribed by hand.** The stats were copied from screenshots. The
+  scraper (below) should replace that.
 
 ## Roadmap
-1. **Data pipeline**: a Playwright scraper for messivsronaldo.app (the site is
-   rendered client-side, so first check its XHR/JSON endpoints in DevTools →
-   Network). Save the raw stats to `data/raw/`.
-2. **Derive ratings**: map the stats to attributes, e.g. dribble success % →
-   `dribbling`, aerial duels won → `heading`/`jumping`, key passes →
-   `vision`, outside-box goals → `long_shots`. Keep the formulas in code so
-   every rating can be traced back to a stat.
-3. **Sensitivity analysis**: vary each attribute ±5 and record how much the win
-   rate moves. This shows which attributes actually decide the result.
-4. **Visual replay**: a web page (Next.js) that streams one match's events.
-5. More players and eras: add any profile to `players.json` and pass `--home <id>`.
+1. **Scraper:** use Playwright to read messivsronaldo.app (season pages + detailed stats) into
+   `data/stats/`. This needs the site allowed in the environment's network policy.
+2. **Prime mode:** `--era prime` would use 2011-12 Messi and 2013-14 Ronaldo season stats
+   instead of career stats.
+3. **More data-backed ratings:** tackles and interceptions per 90 for work rate,
+   and sprint data for pace.
+4. **Back-testing:** model real teams (e.g. Barcelona vs Newcastle 2026, 8-3 on aggregate)
+   and check the engine predicts sensible results.
+5. **Sensitivity analysis:** vary each rating by ±5 and see which ones decide the result.

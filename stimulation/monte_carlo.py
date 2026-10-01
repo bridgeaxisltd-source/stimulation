@@ -13,7 +13,8 @@ from .models import Team
 
 STAT_FIELDS = (
     "goals", "shots", "shots_on_target", "xg", "passes_attempted", "passes_completed",
-    "dribbles_attempted", "dribbles_completed", "aerials_won", "fouls_won", "corners", "counters",
+    "dribbles_attempted", "dribbles_completed", "crosses_attempted", "crosses_completed",
+    "aerials_won", "recoveries", "fouls_won", "penalties", "corners", "counters",
 )
 
 

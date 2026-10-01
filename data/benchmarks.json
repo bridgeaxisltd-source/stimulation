@@ -1,0 +1,113 @@
+{
+  "_about": "Real-world numbers the engine is calibrated against. 'league_average': two average teams (calibration baseline) must look like a normal top-flight match. 'messi_vs_average' / 'ronaldo_vs_average': 11 copies of the player vs an average team must reproduce that player's REAL per-action rates. That anchors how much an elite rating is worth, not just the average.",
+  "league_average": {
+    "goals_per_team": {
+      "range": [
+        1.2,
+        1.6
+      ],
+      "evidence": "Top-5 league goals per game in 2025/26: 2.43 (Serie A) to 3.24 (Bundesliga), i.e. ~1.2-1.6 per team.",
+      "source": "https://www.sport-histoire.fr/en/Sport/Football/Comparison.php"
+    },
+    "crosses_per_team": {
+      "range": [
+        8,
+        15
+      ],
+      "evidence": "Premier League average 22.4 crosses per match in 2024/25 (~11 per team).",
+      "source": "https://www.premierleague.com/en/news/4148090"
+    },
+    "cross_completion": {
+      "range": [
+        0.17,
+        0.27
+      ],
+      "evidence": "Premier League cross success rate 21.7%.",
+      "source": "https://www.premierleague.com/en/news/4148090"
+    },
+    "headed_goal_share": {
+      "range": [
+        0.12,
+        0.24
+      ],
+      "evidence": "Headers were 16.3% of PL goals in 2023/24 and 21.3% at a record pace later.",
+      "source": "https://www.premierleague.com/en/news/4029745"
+    },
+    "shots_per_team": {
+      "range": [
+        10,
+        16
+      ],
+      "evidence": "Approximate top-flight average (~12-13 per team). Estimate, not a sourced figure.",
+      "source": null
+    },
+    "shots_per_goal": {
+      "range": [
+        7.5,
+        11.5
+      ],
+      "evidence": "League-average teams need roughly 9-10 shots per goal; the most clinical big-5 sides need ~5.3 (Bayern). Range is an estimate around that.",
+      "source": "https://insideworldfootball.com/?p=124923"
+    },
+    "pass_accuracy": {
+      "range": [
+        0.76,
+        0.87
+      ],
+      "evidence": "Typical top-flight team pass accuracy. Estimate.",
+      "source": null
+    },
+    "possession_balance": {
+      "range": [
+        0.47,
+        0.53
+      ],
+      "evidence": "Two identical teams must split possession evenly.",
+      "source": null
+    }
+  },
+  "messi_vs_average": {
+    "possession": {
+      "range": [
+        0.55,
+        0.8
+      ],
+      "evidence": "Guardiola's Barcelona averaged 72.8% possession in 2010/11 (~747 passes per game); 68% with 89.6% pass accuracy and 22 shots to 4 in the 2011 UCL final; 66% in the 5-0 vs Real Madrid (Nov 2010). Lower bound set to 55%, not 62%: Pep's side also had Xavi, Iniesta and Busquets, who were better pure passers and defenders than Messi, so 11 Messis plausibly keep the ball somewhat less than that team did. This range is a judgement call, changed after the first calibration run; see README.",
+      "source": "https://www.skysports.com/football/news/11679/11167486/how-do-man-city-compare-to-pep-guardiolas-barcelona ; https://www.planetfootball.com/quick-reads/barcelona-man-utd-2011-champions-league-final-brilliant-stats-guardiola-messi"
+    },
+    "pass_accuracy": {
+      "range": [
+        0.84,
+        0.94
+      ],
+      "evidence": "Barcelona 89.6% in the 2011 UCL final.",
+      "source": "https://www.planetfootball.com/quick-reads/barcelona-man-utd-2011-champions-league-final-brilliant-stats-guardiola-messi"
+    },
+    "dribble_success": {
+      "range": [
+        0.55,
+        0.68
+      ],
+      "evidence": "Opta: Messi completed 57.2% of take-ons since 2006/07, and 66.0% (1,509/2,586) in the top 5 leagues Aug 2012-Jun 2023.",
+      "source": "https://www.fourfourtwo.com/features/lionel-messi-barcelona-stunning-statistic-dribbling-argentina-la-liga-opta ; https://theanalyst.com/articles/definitive-guide-to-dribblers-stats"
+    },
+    "shots_per_goal": {
+      "range": [
+        4.6,
+        6.6
+      ],
+      "evidence": "messivsronaldo.app: Messi scores a goal every 5.45 shots (league + UCL since 09/10).",
+      "source": "https://www.messivsronaldo.app/detailed-stats/"
+    }
+  },
+  "ronaldo_vs_average": {
+    "shots_per_goal": {
+      "range": [
+        5.4,
+        7.6
+      ],
+      "evidence": "messivsronaldo.app: Ronaldo scores a goal every 6.43 shots (league + UCL since 09/10).",
+      "source": "https://www.messivsronaldo.app/detailed-stats/"
+    }
+  }
+}

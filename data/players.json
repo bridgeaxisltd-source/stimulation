@@ -1,7 +1,7 @@
 {
   "_meta": {
     "scale": "All attributes and personality traits are 0-100.",
-    "provenance": "Ratings are hand-estimated from each player's peak season. They are NOT scraped yet. The plan is to replace/derive them from messivsronaldo.app detailed stats (see README > Data roadmap). Only the reference numbers under 'reference' are factual season totals.",
+    "provenance": "Hand estimates. Ratings that real stats can back are overwritten at load time by stimulation/derive.py using data/stats/messivsronaldo_detailed.json (run with --show-ratings to see which). 'reference' holds factual season totals.",
     "schema_version": 1
   },
   "players": [
@@ -91,6 +91,46 @@
         "teamplay": 65,
         "work_rate": 40,
         "clutch": 92
+      }
+    },
+    {
+      "id": "baseline",
+      "name": "Average Starter",
+      "era": "calibration baseline",
+      "height_cm": 181,
+      "note": "A generic top-5-league starter (every attribute 70, every trait 50). Used only to calibrate the engine against real league averages. Not a real player.",
+      "attributes": {
+        "pace": 70,
+        "acceleration": 70,
+        "dribbling": 70,
+        "ball_control": 70,
+        "agility": 70,
+        "balance": 70,
+        "short_passing": 70,
+        "long_passing": 70,
+        "vision": 70,
+        "crossing": 70,
+        "finishing": 70,
+        "shot_power": 70,
+        "long_shots": 70,
+        "heading": 70,
+        "jumping": 70,
+        "strength": 70,
+        "stamina": 70,
+        "tackling": 70,
+        "interceptions": 70,
+        "marking": 70,
+        "free_kicks": 70,
+        "penalties": 70,
+        "composure": 70
+      },
+      "personality": {
+        "selfishness": 50,
+        "ego": 50,
+        "patience": 50,
+        "teamplay": 50,
+        "work_rate": 50,
+        "clutch": 50
       }
     }
   ]
