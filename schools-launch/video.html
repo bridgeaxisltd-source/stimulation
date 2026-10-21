@@ -1,0 +1,411 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BridgeAxis OS Launch</title>
+<style>
+  /* Georgia is the site's headline face; Gelasio is its metric-compatible open-source twin. */
+  @font-face { font-family: "Gelasio"; src: url(assets/gelasio-latin-400-normal.woff2) format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Gelasio"; src: url(assets/gelasio-latin-700-normal.woff2) format("woff2"); font-weight: 700; }
+  @font-face { font-family: "Inter"; src: url(assets/inter-latin-wght-normal.woff2) format("woff2"); font-weight: 100 900; }
+  :root { --navy: #12365d; --navy-deep: #04234f; --teal: #009fa3; --teal-dark: #008e94; --muted: #52657a; --paper: #edf8fb; --line: #d7e3ec; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+  body { font-family: "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
+  img { display: block; }
+  #stage { position: absolute; inset: 0; overflow: hidden; background: #fff; transform-origin: 50% 50%; }
+  .scene { position: absolute; inset: 0; overflow: hidden; display: none; z-index: 0; isolation: isolate; }
+  .abs { position: absolute; }
+  .serif { font-family: "Gelasio", Georgia, serif; font-weight: 700; letter-spacing: -.04em; color: var(--navy); }
+  .mask { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .14em; margin-bottom: -.14em; }
+  .mask > span { display: inline-block; }
+  .eyebrow { font-size: 22px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--teal-dark); }
+  .cursor { position: absolute; width: 34px; height: 46px; transform-origin: 3px 3px; z-index: 50; filter: drop-shadow(0 4px 6px rgb(0 0 0 / 30%)); }
+  .ripple { position: absolute; border-radius: 50%; border: 3px solid var(--teal); z-index: 49; }
+
+  /* intro */
+  #s1 { background: #fff; }
+  #logo { left: 0; top: 0; width: 1920px; height: 1080px; display: flex; align-items: center; justify-content: center; gap: 36px; transform-origin: 50% 50%; }
+  #logo svg { width: 300px; height: 282px; overflow: visible; }
+  #wordmark { font-size: 132px; letter-spacing: -.02em; white-space: nowrap; }
+  #wordmark span { color: var(--teal); }
+  #ihl { left: 245px; top: 300px; font-size: 206.9px; line-height: .97; white-space: nowrap; transform-origin: 0 0; }
+
+  /* browser window (landing + app) */
+  #s2 { background: var(--paper); perspective: 2400px; }
+  #win { left: 180px; top: 79px; width: 1560px; height: 921.5px; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 40px 90px rgb(18 54 93 / 28%), 0 0 0 1px rgb(18 54 93 / 8%); }
+  .chrome { position: absolute; left: 0; top: 0; right: 0; height: 44px; background: #eef2f6; border-bottom: 1px solid #d9e1e8; display: flex; align-items: center; padding: 0 18px; gap: 9px; z-index: 3; }
+  .chrome i { width: 13px; height: 13px; border-radius: 50%; }
+  .chrome i:nth-child(1) { background: #ff5f57; } .chrome i:nth-child(2) { background: #febc2e; } .chrome i:nth-child(3) { background: #28c840; }
+  .url { position: relative; margin-left: 22px; height: 28px; width: 560px; border-radius: 14px; background: #fff; display: flex; align-items: center; padding: 0 14px; gap: 8px; font-size: 14px; font-weight: 600; color: #33465d; overflow: hidden; }
+  .url svg { width: 13px; height: 13px; flex: none; }
+  #load { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--teal); transform-origin: 0 50%; transform: scaleX(0); }
+  #vp { position: absolute; left: 0; top: 44px; width: 1560px; height: 877.5px; overflow: hidden; }
+  #page { position: absolute; left: 0; top: 0; width: 1440px; height: 810px; transform: scale(1.083333); transform-origin: 0 0; }
+  #shots img { position: absolute; left: 0; top: 0; width: 1440px; height: 810px; }
+  #caption { right: 70px; bottom: 60px; padding: 26px 34px 30px; background: var(--navy-deep); border-radius: 14px; box-shadow: 0 30px 60px rgb(4 35 79 / 35%); z-index: 20; width: 690px; }
+  #caption .eyebrow { color: #4fd1cf; font-size: 16px; }
+  #capword { position: relative; height: 84px; margin-top: 8px; overflow: hidden; }
+  #capword div { position: absolute; left: 0; top: 0; font-size: 70px; line-height: 1.15; color: #fff; white-space: nowrap; }
+
+  /* packages */
+  #s4 { background: var(--paper); perspective: 2000px; }
+  .card { position: absolute; top: 320px; width: 424px; border-radius: 12px; box-shadow: 0 24px 50px rgb(18 54 93 / 14%); transform-origin: 50% 0; }
+  .card img { width: 100%; border-radius: 12px; }
+
+  /* rollout */
+  #s5 { background: var(--paper); }
+  #rollout { left: 100px; top: 475px; width: 1720px; height: 418px; background: #fff; box-shadow: 0 24px 50px rgb(18 54 93 / 12%); }
+  #rollout img { width: 100%; height: 100%; }
+  #s5sub { left: 100px; top: 930px; font-size: 30px; color: var(--muted); }
+
+  /* conversation + end */
+  #s6 { background: #fff; }
+  #s6hl { left: 130px; top: 230px; font-size: 128px; line-height: 1.02; }
+  #s6sub { left: 136px; top: 560px; width: 760px; font-size: 30px; line-height: 1.55; color: var(--muted); }
+  #actions { left: 1010px; top: 470px; width: 843.75px; height: 254px; transform-origin: 0 0; }
+  #actions > img { width: 100%; height: 100%; }
+  #end { position: absolute; inset: 0; background: var(--paper); z-index: 60; display: none; }
+  #endlogo { left: 0; top: 300px; width: 1920px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+  #endlogo svg { width: 190px; height: 179px; }
+  #endlogo .serif { font-size: 104px; letter-spacing: -.02em; }
+  #endlogo .serif span { color: var(--teal); }
+  #endtag { left: 0; width: 1920px; top: 560px; text-align: center; font-family: "Gelasio", serif; font-size: 50px; color: var(--navy); }
+  #endurl { left: 0; width: 1920px; top: 680px; text-align: center; font-size: 46px; font-weight: 800; color: var(--teal-dark); }
+  #endmail { left: 0; width: 1920px; top: 760px; text-align: center; font-size: 28px; font-weight: 600; color: var(--muted); }
+  #endbar { left: 0; top: 0; width: 1920px; height: 10px; background: var(--teal); transform-origin: 0 50%; }
+
+  #flash { position: absolute; inset: 0; background: #fff; z-index: 90; opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="lg" gradientUnits="userSpaceOnUse" x1="2" y1="188.5" x2="197" y2="188.5"><stop offset="0" stop-color="#123f6d"/><stop offset=".45" stop-color="#07345f"/><stop offset="1" stop-color="#022c50"/></linearGradient>
+    <linearGradient id="rg" gradientUnits="userSpaceOnUse" x1="214" y1="188.5" x2="395" y2="188.5"><stop offset="0" stop-color="#00949e"/><stop offset=".58" stop-color="#03a5aa"/><stop offset="1" stop-color="#18b6b6"/></linearGradient>
+    <!-- The four pieces of the real brand-symbol.svg -->
+    <g id="sym">
+      <path class="piece" fill="url(#lg)" d="M197 28 L157 79 L157 124 L81 220 L121 208 L156 164 L156 201 C170 200,184 199,197 198 Z"/>
+      <path class="piece" fill="url(#rg)" d="M214 28 L254 78 L254 124 L331 220 L290 208 L255 164 L254 201 C240 200,226 199,214 198 Z"/>
+      <path class="piece" fill="url(#lg)" d="M197 213 C183 213,170 214,156 216 C103 222,49 240,2 264 C21 257,43 251,66 247 L67 249 L59 257 L59 298 L104 240 C121 237,140 235,157 233 L157 325 L197 352 Z"/>
+      <path class="piece" fill="url(#rg)" d="M214 213 C230 213,246 214,273 218 C312 224,354 239,395 261 C383 257,366 251,345 247 L344 248 L353 258 L352 298 L308 240 C288 237,270 235,255 233 L254 326 L214 352 Z"/>
+    </g>
+  </defs>
+</svg>
+<div id="stage">
+
+  <div class="scene" id="s1">
+    <div class="abs" id="logo">
+      <svg viewBox="0 0 401 377" id="introSym">
+        <path fill="url(#lg)" d="M197 28 L157 79 L157 124 L81 220 L121 208 L156 164 L156 201 C170 200,184 199,197 198 Z"/>
+        <path fill="url(#rg)" d="M214 28 L254 78 L254 124 L331 220 L290 208 L255 164 L254 201 C240 200,226 199,214 198 Z"/>
+        <path fill="url(#lg)" d="M197 213 C183 213,170 214,156 216 C103 222,49 240,2 264 C21 257,43 251,66 247 L67 249 L59 257 L59 298 L104 240 C121 237,140 235,157 233 L157 325 L197 352 Z"/>
+        <path fill="url(#rg)" d="M214 213 C230 213,246 214,273 218 C312 224,354 239,395 261 C383 257,366 251,345 247 L344 248 L353 258 L352 298 L308 240 C288 237,270 235,255 233 L254 326 L214 352 Z"/>
+      </svg>
+      <div class="serif" id="wordmark">BridgeAxis <span>OS</span></div>
+    </div>
+    <div class="abs serif" id="ihl">
+      <div><span class="mask"><span>A calmer way</span></span></div>
+      <div><span class="mask"><span>to run your</span></span></div>
+      <div><span class="mask"><span>school.</span></span></div>
+    </div>
+  </div>
+
+  <div class="scene" id="s2">
+    <div class="abs" id="win">
+      <div class="chrome"><i></i><i></i><i></i>
+        <div class="url"><svg viewBox="0 0 16 16"><path fill="#33465d" d="M4 7V5a4 4 0 1 1 8 0v2h1v8H3V7h1Zm2 0h4V5a2 2 0 1 0-4 0v2Z"/></svg><span id="urltext">schools.bridgeaxisltd.com</span><i id="load"></i></div>
+      </div>
+      <div id="vp">
+        <div id="page">
+          <div id="shots"></div>
+          <div id="hovs"></div>
+          <div class="ripple" id="rip"></div>
+          <svg class="cursor" id="cur" viewBox="0 0 34 46"><path d="M3 3v34l9-8 6 14 7-3-6-13h12L3 3Z" fill="#fff" stroke="#0b1b33" stroke-width="2.4" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="abs" id="caption">
+      <p class="eyebrow">Everything your school needs, in one place</p>
+      <div id="capword" class="serif">
+        <div>Overview.</div><div>Admissions.</div><div>Attendance.</div><div>Analytics.</div><div>SMS stays visible.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene" id="s4">
+    <p class="abs eyebrow" style="left:76px;top:110px" id="s4eb">Packages</p>
+    <div class="abs serif" style="left:76px;top:150px;font-size:92px;line-height:1.05" id="s4hl"><span class="mask"><span>Start with what your school needs now.</span></span></div>
+    <div class="card" style="left:76px"><img src="assets/package-0.png"></div>
+    <div class="card" style="left:524px"><img src="assets/package-1.png"></div>
+    <div class="card" style="left:972px"><img src="assets/package-2.png"></div>
+    <div class="card" style="left:1420px"><img src="assets/package-3.png"></div>
+  </div>
+
+  <div class="scene" id="s5">
+    <p class="abs eyebrow" style="left:100px;top:150px" id="s5eb">A calm rollout</p>
+    <div class="abs serif" style="left:100px;top:190px;font-size:110px;line-height:1.05;width:1720px" id="s5hl"><span class="mask"><span>Move at a pace your team can manage.</span></span></div>
+    <div class="abs" id="rollout"><img src="assets/rollout.png"></div>
+    <p class="abs" id="s5sub">There is no pressure to switch every process at once.</p>
+  </div>
+
+  <div class="scene" id="s6">
+    <div class="abs serif" id="s6hl">
+      <div><span class="mask"><span>Let's talk about</span></span></div>
+      <div><span class="mask"><span>your school.</span></span></div>
+    </div>
+    <p class="abs" id="s6sub">Every school is different. Have a short, no-obligation conversation with our team about how BridgeAxis OS can support your own goals.</p>
+    <div class="abs" id="actions">
+      <img src="assets/conversation-actions.png">
+      <img class="abs" id="bookHover" src="assets/ui/book-btn-hover.png">
+    </div>
+    <div class="ripple" id="rip6"></div>
+    <svg class="cursor" id="cur6" viewBox="0 0 34 46"><path d="M3 3v34l9-8 6 14 7-3-6-13h12L3 3Z" fill="#fff" stroke="#0b1b33" stroke-width="2.4" stroke-linejoin="round"/></svg>
+    <div id="end">
+      <div class="abs" id="endbar"></div>
+      <div class="abs" id="endlogo">
+        <svg viewBox="0 0 401 377"><use href="#sym"/></svg>
+        <div class="serif">BridgeAxis <span>OS</span></div>
+      </div>
+      <div class="abs" id="endtag">A calmer way to run your school.</div>
+      <div class="abs" id="endurl">schools.bridgeaxisltd.com</div>
+      <div class="abs" id="endmail">hello@bridgeaxisltd.com</div>
+    </div>
+  </div>
+
+  <div id="flash"></div>
+</div>
+
+<script>
+const TL = __TIMELINE__;
+const R = __RECTS__;
+const B = 60 / TL.bpm;
+const S = 1560 / 1440;            // page px -> window px
+const WX = 180, WY = 79 + 44;     // viewport origin in frame
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (bt, b0, b1) => clamp((bt - b0) / (b1 - b0));
+const outExpo = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
+const inExpo = (t) => (t <= 0 ? 0 : Math.pow(2, 10 * t - 10));
+const inOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const outBack = (t) => { const c = 1.7; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+const outCubic = (t) => 1 - Math.pow(1 - t, 3);
+function show(id, on) { $(id).style.display = on ? 'block' : 'none'; }
+function css(el, o) { Object.assign((typeof el === 'string' ? $(el) : el).style, o); }
+function rise(el, bt, b, len = 0.5) {
+  const p = outExpo(seg(bt, b, b + len));
+  el.style.transform = `translateY(${(1 - p) * 150}%) skewY(${(1 - p) * 5}deg)`;
+}
+function path(keys, bt) {
+  if (bt <= keys[0][0]) return keys[0].slice(1);
+  for (let i = 1; i < keys.length; i++) {
+    if (bt <= keys[i][0]) {
+      const t = inOut(seg(bt, keys[i - 1][0], keys[i][0]));
+      return [lerp(keys[i - 1][1], keys[i][1], t), lerp(keys[i - 1][2], keys[i][2], t)];
+    }
+  }
+  return keys[keys.length - 1].slice(1);
+}
+function cursorAt(el, x, y, bt, clicks, scale = 1) {
+  const press = Math.max(0, ...clicks.map((c) => 1 - Math.abs(bt - c) / 0.16));
+  el.style.transform = `translate(${x}px, ${y}px) scale(${scale * (1 - 0.22 * press)})`;
+}
+function ripple(el, bt, clicks, size) {
+  const c = clicks.filter((k) => bt >= k[0]).pop();
+  const p = c ? seg(bt, c[0], c[0] + 0.6) : 1;
+  if (p <= 0 || p >= 1) { el.style.opacity = 0; return; }
+  const r = outCubic(p) * size;
+  css(el, { left: `${c[1] - r}px`, top: `${c[2] - r}px`, width: `${2 * r}px`, height: `${2 * r}px`, opacity: 1 - p });
+}
+const center = (r) => [r.x + r.w / 2, r.y + r.h / 2];
+
+// App click-through: each page lives 2 beats; group click on +1, link click on +1.5.
+const PAGES = ['home', 'admissions', 'attendance', 'analytics', 'sms'];
+const pageAt = (bt) => Math.min(4, Math.floor((bt - 8) / 2));
+
+function render(t) {
+  const bt = t / B;
+  let punch = 0;
+  for (const h of [...TL.impacts, ...TL.clicks]) {
+    const dt = t - h * B;
+    if (dt >= 0) punch += (TL.impacts.includes(h) ? 0.016 : 0.006) * Math.exp(-dt * 11);
+  }
+  $('#stage').style.transform = `scale(${1 + punch})`;
+  let flash = 0;
+  for (const h of [8]) { const dt = t - h * B; if (dt >= 0) flash += 0.45 * Math.exp(-dt * 13); }
+  $('#flash').style.opacity = flash;
+
+  // ---------- intro: the real symbol assembles, wordmark, headline, match cut ----------
+  show('#s1', bt < 4.02);
+  if (bt < 4.02) {
+    const from = [[-140, -120], [140, -120], [-160, 120], [160, 120]];
+    $$('#introSym path').forEach((p, i) => {
+      const e = outExpo(seg(bt, i * 0.25, i * 0.25 + 0.4));
+      p.style.transform = `translate(${(1 - e) * from[i][0]}px, ${(1 - e) * from[i][1]}px)`;
+      p.style.opacity = clamp(e * 3);
+    });
+    const wm = outExpo(seg(bt, 1, 1.6));
+    css('#wordmark', { clipPath: `inset(0 ${(1 - wm) * 100}% 0 0)`, transform: `translateX(${(1 - wm) * -40}px)` });
+    const up = inOut(seg(bt, 1.75, 2.25));
+    const gone = inExpo(seg(bt, 3.3, 3.8));
+    css('#logo', { transform: `translateY(${-345 * up - 200 * gone}px) scale(${lerp(1, 0.42, up)})`, opacity: 1 - gone });
+    $$('#ihl .mask > span').forEach((el, i) => rise(el, bt, 2 + 0.5 * i, 0.6));
+    // match cut into the real hero H1 inside the browser window
+    const m = inOut(seg(bt, 3.3, 3.9));
+    const tx = WX + 130 * S, ty = WY + 146 * S;
+    css('#ihl', { transform: `translate(${(tx - 245) * m}px, ${(ty - 300) * m}px) scale(${lerp(1, 1 / 2.6, m)})` });
+    css('#s1', { background: `rgb(255 255 255 / ${1 - seg(bt, 3.88, 4)})` });
+  }
+
+  // ---------- browser: landing, then the demo app ----------
+  show('#s2', bt >= 3.88 && bt < 20.05);
+  if (bt >= 3.88 && bt < 20.05) {
+    css('#s2', { opacity: seg(bt, 3.88, 4) });
+    const app = bt >= 8;
+    const pg = app ? pageAt(bt) : -1;
+    let shot = 'landing-hero';
+    if (app) {
+      const local = bt - (8 + pg * 2);
+      // the group opens (and the sidebar may scroll) just after the press, as in the app
+      shot = `app-${PAGES[pg]}${pg < 4 && local >= 1.1 ? '-open' : pg < 4 && local >= 0.6 ? '-pre' : ''}`;
+    }
+    $$('#shots img').forEach((im) => (im.style.display = im.dataset.name === shot ? 'block' : 'none'));
+
+    $('#urltext').textContent = bt < 7.4 ? 'schools.bridgeaxisltd.com' : `demo.bridgeaxisltd.com/school-admin${app && pg > 0 ? '/' + PAGES[pg] : ''}`;
+    css('#load', { transform: `scaleX(${outCubic(seg(bt, 7.1, 8))})`, opacity: 1 - seg(bt, 8, 8.2) });
+
+    // hover overlay: landing link, then each sidebar link before its click
+    let hov = null;
+    if (!app && bt >= 6.6) hov = ['demo-link', R.demoLink];
+    if (app && pg < 4 && bt - (8 + pg * 2) >= 1.3) hov = [`app-${PAGES[pg]}-link`, R[`${PAGES[pg]}Link`]];
+    $$('#hovs img').forEach((im) => {
+      const on = hov && im.dataset.name === hov[0];
+      css(im, on ? { display: 'block', left: `${hov[1].x - 10}px`, top: `${hov[1].y - 10}px`, width: `${hov[1].w + 20}px`, height: `${hov[1].h + 20}px` } : { display: 'none' });
+    });
+
+    // cursor path in page coordinates
+    const dl = center(R.demoLink);
+    const keys = [[5.4, 900, 880], [6.6, dl[0] - 30, dl[1] + 2], [7.6, dl[0] - 30, dl[1] + 2], [8.4, 700, 560]];
+    const clicks = [[7, dl[0] - 30, dl[1] + 2]];
+    for (let i = 0; i < 4; i++) {
+      const b0 = 8 + 2 * i;
+      const g = center(R[`${PAGES[i]}Group`]), l = center(R[`${PAGES[i]}Link`]);
+      keys.push([b0 + 0.75, g[0] - 40, g[1]], [b0 + 1.1, g[0] - 40, g[1]], [b0 + 1.35, l[0] - 40, l[1]], [b0 + 1.7, l[0] - 40, l[1]]);
+      clicks.push([b0 + 1, g[0] - 40, g[1]], [b0 + 1.5, l[0] - 40, l[1]]);
+    }
+    keys.push([16.6, 700, 900]);
+    const [cx, cy] = path(keys, bt);
+    cursorAt($('#cur'), cx, cy, bt, clicks.map((c) => c[0]), 1.15);
+    css('#cur', { opacity: seg(bt, 5.4, 5.6) * (1 - seg(bt, 16.3, 16.6)) });
+    ripple($('#rip'), bt, clicks, 70);
+
+    // camera: slow push on the landing, steady drift in the app, punch into the SMS balance
+    const P = [WX + 690 * S, WY + 300 * S];
+    const zz = inOut(seg(bt, 16.4, 17.2)) * (1 - inOut(seg(bt, 18.9, 19.5)));
+    const push = 1 + 0.035 * seg(bt, 4, 7.5) * (1 - seg(bt, 7.5, 8)) + 0.04 * seg(bt, 8, 16);
+    const out = inExpo(seg(bt, 19.5, 20));
+    css('#win', {
+      transformOrigin: zz > 0 ? `${P[0] - 180}px ${P[1] - 79}px` : '50% 50%',
+      transform: `translate(${(960 - P[0]) * zz}px, ${(540 - P[1]) * zz - out * 1200}px) scale(${push * lerp(1, 1.55, zz) * lerp(1, 0.8, out)}) rotateX(${out * 20}deg)`,
+    });
+
+    // caption card
+    const capIn = outExpo(seg(bt, 8.2, 8.7)) * (1 - inExpo(seg(bt, 19.3, 19.7)));
+    css('#caption', { opacity: capIn, transform: `translateY(${(1 - capIn) * 60}px)` });
+    $$('#capword div').forEach((d, i) => {
+      const b = 8 + 2 * i;
+      const pin = outExpo(seg(bt, b, b + 0.4)), pout = i < 4 ? inExpo(seg(bt, b + 1.8, b + 2)) : 0;
+      d.style.transform = `translateY(${(1 - pin) * 110 - pout * 110}%)`;
+    });
+  }
+
+  // ---------- packages ----------
+  show('#s4', bt >= 19.6 && bt < 24.05);
+  if (bt >= 19.6 && bt < 24.05) {
+    css('#s4', { clipPath: `inset(${(1 - inOut(seg(bt, 19.6, 20))) * 100}% 0 0 0)` });
+    css('#s4eb', { opacity: seg(bt, 20, 20.3) });
+    rise($('#s4hl .mask > span'), bt, 20, 0.6);
+    $$('.card').forEach((c, i) => {
+      const p = seg(bt, 20.5 + 0.5 * i, 20.5 + 0.5 * i + 0.5);
+      const e = outExpo(p);
+      const lift = i === 2 ? outBack(seg(bt, 22.6, 23)) : 0;
+      css(c, {
+        opacity: clamp(p * 3),
+        transform: `translateY(${(1 - e) * 260 - lift * 18}px) rotateX(${(1 - e) * -35}deg) scale(${lerp(0.85, 1, e) * (1 + 0.03 * lift)})`,
+        boxShadow: lift ? `0 ${24 + 20 * lift}px ${50 + 30 * lift}px rgb(0 159 163 / ${14 + 16 * lift}%)` : '',
+      });
+    });
+    const out = inExpo(seg(bt, 23.55, 24));
+    css('#s4', { transform: `translateX(${-out * 1920}px)` });
+  }
+
+  // ---------- rollout ----------
+  show('#s5', bt >= 23.55 && bt < 28.05);
+  if (bt >= 23.55 && bt < 28.05) {
+    const inn = inOut(seg(bt, 23.55, 24));
+    css('#s5', { transform: `translateX(${(1 - inn) * 1920}px)` });
+    css('#s5eb', { opacity: seg(bt, 24, 24.3) });
+    rise($('#s5hl .mask > span'), bt, 24, 0.6);
+    const sc = 1720 / 1180;
+    let rev = 0;
+    R.rolloutSteps.forEach((s, i) => {
+      const p = outExpo(seg(bt, 24.5 + 0.5 * i, 24.5 + 0.5 * i + 0.35));
+      if (p > 0) rev = lerp(i ? R.rolloutSteps[i - 1].x + R.rolloutSteps[i - 1].w : 0, s.x + s.w, p);
+    });
+    css('#rollout', { clipPath: `inset(0 ${100 - (rev / 1180) * 100}% 0 0)`, transform: `translateY(${(1 - outExpo(seg(bt, 24.4, 24.9))) * 40}px)` });
+    css('#s5sub', { opacity: seg(bt, 26.4, 26.8), transform: `translateY(${(1 - outExpo(seg(bt, 26.4, 26.9))) * 24}px)` });
+    const out = inExpo(seg(bt, 27.55, 28));
+    css('#s5', { opacity: 1 - out, transform: `translateX(${(1 - inn) * 1920}px) scale(${1 + 0.15 * out})` });
+  }
+
+  // ---------- conversation + end card ----------
+  show('#s6', bt >= 27.9);
+  if (bt >= 27.9) {
+    $$('#s6hl .mask > span').forEach((el, i) => rise(el, bt, 28 + 0.5 * i, 0.6));
+    css('#s6sub', { opacity: seg(bt, 29, 29.4), transform: `translateY(${(1 - outExpo(seg(bt, 29, 29.6))) * 24}px)` });
+    const ap = seg(bt, 28.75, 29.25);
+    const press = Math.max(0, 1 - Math.abs(bt - 30) / 0.18);
+    const AS = 843.75 / 675;
+    css('#actions', { opacity: clamp(ap * 3), transform: `translateY(${(1 - outExpo(ap)) * 80}px)` });
+    const b = R.bookBtn;
+    css('#bookHover', { left: `${(b.x - 10) * AS}px`, top: `${(b.y - 10) * AS}px`, width: `${(b.w + 20) * AS}px`, height: `${(b.h + 20) * AS}px`, opacity: seg(bt, 29.65, 29.8), transform: `scale(${1 - 0.04 * press})` });
+    const bc = [1010 + (b.x + b.w * 0.6) * AS, 470 + (b.y + b.h * 0.6) * AS];
+    const [cx, cy] = path([[29.1, 1500, 1150], [29.8, bc[0], bc[1]]], bt);
+    cursorAt($('#cur6'), cx, cy, bt, [30], 1.2);
+    css('#cur6', { opacity: seg(bt, 29.1, 29.3) * (1 - seg(bt, 30.5, 30.6)) });
+    ripple($('#rip6'), bt, [[30, bc[0], bc[1]]], 160);
+
+    const ec = inOut(seg(bt, 30.15, 30.7));
+    show('#end', ec > 0);
+    css('#end', { clipPath: `circle(${ec * 2300}px at ${bc[0]}px ${bc[1]}px)` });
+    const lg = seg(bt, 30.5, 31.1), hold = seg(bt, 30.5, 32);
+    css('#endlogo', { opacity: clamp(lg * 2), transform: `scale(${lerp(0.88, 1, outExpo(lg)) * (1 + 0.025 * hold)})` });
+    css('#endbar', { transform: `scaleX(${outExpo(seg(bt, 30.5, 31.5))})` });
+    css('#endtag', { opacity: seg(bt, 30.8, 31.2), transform: `translateY(${(1 - outExpo(seg(bt, 30.8, 31.3))) * 24}px)` });
+    css('#endurl', { opacity: seg(bt, 31, 31.3), transform: `translateY(${(1 - outExpo(seg(bt, 31, 31.5))) * 24}px)` });
+    css('#endmail', { opacity: seg(bt, 31.2, 31.6) });
+  }
+}
+
+window.render = render;
+window.ready = (async () => {
+  await document.fonts.ready;
+  // every screenshot the window cuts between is its own layer, so a cut never waits on decoding
+  const add = (parent, name, src, cls) => {
+    const im = document.createElement('img');
+    im.src = src; im.dataset.name = name; im.className = cls; im.style.display = 'none';
+    $(parent).appendChild(im);
+  };
+  ['landing-hero', ...['home', 'admissions', 'attendance', 'analytics'].flatMap((p) => [`app-${p}`, `app-${p}-pre`, `app-${p}-open`]), 'app-sms']
+    .forEach((s) => add('#shots', s, `assets/${s}.png`, 'shot'));
+  ['demo-link', 'app-home-link', 'app-admissions-link', 'app-attendance-link', 'app-analytics-link']
+    .forEach((s) => add('#hovs', s, `assets/ui/${s}-hover.png`, 'abs'));
+  await Promise.all([...document.images].map((i) => i.decode().catch(() => {})));
+  render(0);
+  return true;
+})();
+</script>
+</body>
+</html>
