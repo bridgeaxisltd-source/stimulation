@@ -182,7 +182,8 @@ const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const lerp = (a, b, t) => a + (b - a) * t;
 const seg = (bt, b0, b1) => clamp((bt - b0) / (b1 - b0));
 const outExpo = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
-const inExpo = (t) => (t <= 0 ? 0 : Math.pow(2, 10 * t - 10));
+// Exits use a cubic ease-in: an exponential one ends ~7x faster than average and strobes under motion blur.
+const inCubic = (t) => t * t * t;
 const inOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const outBack = (t) => { const c = 1.6; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
 const outCubic = (t) => 1 - Math.pow(1 - t, 3);
@@ -197,7 +198,7 @@ function T(el, { x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0, s = 1, o = 1, blur
 }
 function rise(el, bt, b, len = 0.5, out = null) {
   const p = outExpo(seg(bt, b, b + len));
-  const q = out == null ? 0 : inExpo(seg(bt, out - 0.22, out));
+  const q = out == null ? 0 : inCubic(seg(bt, out - 0.3, out));
   el.style.transform = `translateY(${(1 - p) * 150 - q * 150}%) skewY(${(1 - p) * 5}deg)`;
   // waiting or finished lines are hidden outright: on a long line the skew can lift one end above the mask
   el.style.visibility = p <= 0 || q >= 1 ? 'hidden' : 'visible';
@@ -396,12 +397,12 @@ function sceneHook(bt) {
   // each word brings its real component in from depth, then hands over
   S.hook.forEach((w, i) => {
     const b0 = TL.hookWords[i], b1 = i < 3 ? TL.hookWords[i + 1] : 2;
-    const pin = outExpo(seg(bt, b0 - 0.05, b0 + 0.3)), pout = inExpo(seg(bt, b1 - 0.12, b1 + 0.08));
+    const pin = outExpo(seg(bt, b0 - 0.05, b0 + 0.3)), pout = inCubic(seg(bt, b1 - 0.12, b1 + 0.08));
     const drift = seg(bt, b0, b1 + 0.1);
     let st = { x: (1 - pin) * 380 - pout * 320, z: (1 - pin) * -500 - pout * 400, ry: lerp(-38, -14, pin) - drift * 6 - pout * 20,
       rx: 6, s: w.baseScale * (1 + 0.05 * drift), o: clamp(pin * 2) * (1 - pout), blur: (1 - pin) * 8 + pout * 10 };
     // after the white wipe: all four return as a small cluster, then become the mark
-    const cl = seg(bt, 2.05, 2.5), into = inExpo(seg(bt, 3.0, 3.4));
+    const cl = seg(bt, 2.05, 2.5), into = inCubic(seg(bt, 3.0, 3.4));
     if (bt >= 2.05) {
       const slots = [[-260, -150], [260, -150], [-260, 140], [260, 140]];
       const e = outExpo(cl);
@@ -430,7 +431,7 @@ function sceneHook(bt) {
   });
   const wm = outExpo(seg(bt, 3.5, 4.0));
   css($('#wordmark'), { clipPath: `inset(-10% ${(1 - wm) * 100}% -20% 0)`, transform: `translateX(${(1 - wm) * -40}px)` });
-  const up = inOut(seg(bt, 4.0, 4.4)), gone = inExpo(seg(bt, 4.95, 5.3));
+  const up = inOut(seg(bt, 4.0, 4.4)), gone = inCubic(seg(bt, 4.95, 5.3));
   css($('#logo'), { transform: `translateY(${-360 * up - 160 * gone}px) scale(${lerp(1, 0.4, up)})`, opacity: 1 - gone });
 
   // headline, then the match cut into the real hero H1
@@ -445,7 +446,7 @@ function sceneLanding(bt) {
   css($('#s2'), { opacity: seg(bt, 5.42, 5.55) });
   // camera: tilt the page back as the preview lifts off; then settle and dive into the click
   const lift = inOut(seg(bt, 5.55, 6.0)) * (1 - inOut(seg(bt, 6.85, 7.25)));
-  const dive = inExpo(seg(bt, 7.65, 8.0));
+  const dive = inCubic(seg(bt, 7.65, 8.0));
   const dl = center(META.landing.demoLink);
   css($('#landCam'), {
     transformOrigin: `${dl[0] * 4 / 3}px ${dl[1] * 4 / 3}px`,
@@ -471,7 +472,7 @@ function sceneLanding(bt) {
 
 function sceneApp(bt) {
   // window entrance on the drop, gentle drift, exit
-  const ent = outExpo(seg(bt, 8, 8.6)), ex = inExpo(seg(bt, 19.5, 20));
+  const ent = outExpo(seg(bt, 8, 8.6)), ex = inCubic(seg(bt, 19.5, 20));
   const drift = Math.sin((bt - 8) * 0.5) * 1.6;
   let push = { s: 1, ox: 720, oy: 405 };
   const anaPush = inOut(seg(bt, 16, 16.6)) * (1 - inOut(seg(bt, 16.7, 17)));
@@ -509,9 +510,8 @@ function sceneApp(bt) {
   // shell: sidebar slides in, topbar drops, then crossfades per module
   TL.modules.forEach((m, i) => {
     const mod = S.app[m.id];
-    const on = i === 0 ? 1 : seg(bt, m.start - 0.1, m.start + 0.05);
-    const off = i < 3 ? seg(bt, TL.modules[i + 1].start - 0.1, TL.modules[i + 1].start + 0.05) : 0;
-    const vis = on * (1 - off);
+    // the shell switches instantly on the beat, as navigation does in the app
+    const vis = (i === 0 || bt >= m.start) && (i === 3 || bt < TL.modules[i + 1].start) ? 1 : 0;
     if (i === 0) {
       T(mod.sidebar, { x: -(1 - outExpo(seg(bt, 8.05, 8.45))) * 280, o: vis });
       T(mod.topbar, { y: -(1 - outExpo(seg(bt, 8.15, 8.5))) * 100, o: vis });
@@ -524,7 +524,7 @@ function sceneApp(bt) {
     mod.all.forEach((w, k) => {
       const b = s0 + 0.25 + k * 0.0625;
       const p = outExpo(seg(bt, b, b + 0.4));
-      const q = inExpo(seg(bt, s0 + 2.72 + (mod.all.length - k) * 0.012, s0 + 2.95));
+      const q = inCubic(seg(bt, s0 + 2.72 + (mod.all.length - k) * 0.012, s0 + 2.95));
       const hidden = bt < b - 0.01 || q >= 1;
       if (hidden) { w.style.opacity = 0; return; }
       T(w, { z: (1 - p) * 520 - q * 380, y: (1 - p) * 40, rx: (1 - p) * -22, o: clamp(p * 2.5) * (1 - q), blur: (1 - p) * 6 + q * 6 });
@@ -536,7 +536,7 @@ function sceneApp(bt) {
   adm.parts.metric.forEach((w, k) => setCount(w, seg(bt, 9.0 + k * 0.06, 9.75 + k * 0.06)));
   // attendance: rows are empty until "Refresh attendance" is clicked
   att.parts.metric.forEach((w) => setCount(w, seg(bt, 12.75, 13.5)));
-  const attOut = inExpo(seg(bt, 13.72, 13.95));
+  const attOut = inCubic(seg(bt, 13.72, 13.95));
   att.parts.row.forEach((w, k) => {
     const b = 12.75 + 0.25 * k;
     const p = outExpo(seg(bt, b, b + 0.3));
@@ -571,16 +571,16 @@ function scenePackages(bt) {
   const lift = outBack(seg(bt, 22.3, 22.65));
   S.pkgs.forEach((w, i) => {
     const p = META.landing.packages[i];
-    const drop = outExpo(seg(bt, 20 + i * 0.06, 20.4 + i * 0.06));
+    const drop = outCubic(seg(bt, 19.72 + i * 0.05, 20 + i * 0.05));  // the first card lands on the beat-20 impact
     const fan = inOut(seg(bt, 20.6, 21.35)), flat = inOut(seg(bt, 21.5, 22.2));
-    const out = inExpo(seg(bt, 23.55 + i * 0.04, 23.95));
+    const out = inCubic(seg(bt, 23.55 + i * 0.04, 23.95));
     const cx = 960 - (p.w * sc) / 2;
     const x = lerp(cx + fanX[i] * fan, row(i), flat) - p.w / 2 + (p.w * sc) / 2;
     const y = 330 - p.h + p.h * sc;  // cards scale from their bottom edge
     const up = i === 2 ? lift : 0;
     css(w, { left: '0px', top: '0px' });
     T(w, {
-      x, y: y - (1 - drop) * 1000 - up * 26 - out * 1100, z: up * 90,
+      x, y: y - (1 - drop) * 600 - up * 26 - out * 700, z: up * 90,
       rz: lerp(lerp(deck[i], fanA[i], fan), 0, flat), s: sc * (1 + up * 0.04), o: 1,
     });
     w.style.zIndex = i === 2 ? 5 : i;
@@ -596,7 +596,7 @@ function scenePackages(bt) {
 }
 
 function sceneRollout(bt) {
-  const inn = inOut(seg(bt, 23.55, 24)), out = inExpo(seg(bt, 27.6, 28));
+  const inn = inOut(seg(bt, 23.55, 24)), out = inCubic(seg(bt, 27.6, 28));
   css($('#s5'), { transform: `translateY(${(1 - inn) * 1080}px) scale(${1 - out * 0.08})`, opacity: 1 - out });
   css($('#rollEyebrow'), { opacity: seg(bt, 24, 24.3) });
   rise($('#rollHl .mask > span'), bt, 24, 0.6);

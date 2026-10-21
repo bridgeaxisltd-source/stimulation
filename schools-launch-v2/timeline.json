@@ -76,7 +76,7 @@
     }
   ],
   "motionBlur": {
-    "samples": 5,
-    "shutter": 0.5
+    "samples": 8,
+    "shutter": 0.45
   }
 }

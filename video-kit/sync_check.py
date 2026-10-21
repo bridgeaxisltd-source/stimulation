@@ -45,8 +45,12 @@ bands = {"click": onsets_in(2000, 9000), "hook": onsets_in(2000, 9000), "impact"
 events = [("click", b) for b in TL.get("clicks", [])] + [("hook", b) for b in TL.get("hookWords", [])] + \
          [("impact", b) for b in TL.get("impacts", [])]
 worst = {}
+EDGE = 2 * WIN / SR  # flux needs a frame before the onset, so the first ~46 ms can't be measured
 for kind, b in sorted(events, key=lambda e: e[1]):
     t = b * B
+    if t < EDGE:
+        print(f"{kind:7s} beat {b:5.2f}  t={t:6.3f}s  not measurable (start of file)")
+        continue
     on = bands[kind]
     d = (on[np.argmin(np.abs(on - t))] - t) * 1000
     worst[kind] = max(worst.get(kind, 0), abs(d))
