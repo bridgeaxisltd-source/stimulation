@@ -1,0 +1,509 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BridgeAxis Launch</title>
+<style>
+  @font-face { font-family: "Bricolage"; src: url(assets/bricolage-grotesque-latin-standard-normal.woff2) format("woff2"); font-weight: 200 800; }
+  @font-face { font-family: "Manrope"; src: url(assets/manrope-latin-wght-normal.woff2) format("woff2"); font-weight: 200 800; }
+  :root {
+    --navy: #04234f; --navy-deep: #031b3d; --teal: #08a7a4; --teal-dark: #058c8a;
+    --ink: #09234b; --muted: #5c6b7f; --soft: #f4f7fa; --line: #dbe3eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+  body { font-family: "Manrope", sans-serif; -webkit-font-smoothing: antialiased; }
+  img { display: block; }
+  #stage { position: absolute; inset: 0; overflow: hidden; background: #fff; transform-origin: 50% 50%; }
+  .scene { position: absolute; inset: 0; overflow: hidden; display: none; z-index: 0; isolation: isolate; }
+  .abs { position: absolute; }
+  .display { font-family: "Bricolage", sans-serif; }
+  .mask { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .12em; margin-bottom: -.12em; }
+  .mask > span { display: inline-block; will-change: transform; }
+  .label { font-size: 18px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; color: var(--teal-dark); }
+  .cursor { position: absolute; width: 34px; height: 46px; transform-origin: 3px 3px; z-index: 50; filter: drop-shadow(0 4px 6px rgb(0 0 0 / 30%)); }
+  .ripple { position: absolute; border-radius: 50%; border: 3px solid var(--teal); pointer-events: none; z-index: 49; }
+
+  /* S1 logo */
+  #s1 { background: #fff; }
+  #s1line { left: 957px; top: 0; width: 6px; height: 1080px; background: var(--teal); transform-origin: 50% 100%; }
+  #s1group { left: 368px; top: 355px; width: 1184px; height: 370px; transform-origin: 0 0; }
+  #s1mark { position: absolute; left: 0; top: 0; width: 452px; height: 370px; transform-origin: 50% 60%; }
+  #s1word { position: absolute; left: 452px; top: 0; width: 732px; height: 370px; }
+
+  /* S2 headline */
+  #s2 { background: #fff; }
+  #s2tick { left: 205px; top: 150px; width: 3px; height: 70px; background: var(--teal); transform-origin: 50% 0; }
+  #s2hl { left: 196px; top: 250px; font-size: 206px; font-weight: 650; letter-spacing: -.065em; line-height: .97; color: var(--navy); transform-origin: 0 50%; white-space: nowrap; }
+  #s2hl .teal { color: var(--teal-dark); }
+  #s2plane { left: 0; top: 0; width: 3000px; height: 2400px; background: var(--navy); border-radius: 52% 0 0 0; }
+
+  /* S3 live site */
+  #s3 { background: var(--navy); perspective: 2200px; }
+  #s3axis { left: 1708px; top: 0; width: 6px; height: 1080px; background: var(--teal); opacity: .85; }
+  #s3ring { left: -260px; top: -520px; width: 900px; height: 900px; border: 2px solid var(--teal); border-radius: 50%; opacity: .42; }
+  #win { left: 210px; top: 96px; width: 1500px; height: 888px; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 50px 90px rgb(0 10 30 / 55%), 0 0 0 1px rgb(255 255 255 / 8%); transform-style: preserve-3d; }
+  .chrome { position: absolute; left: 0; top: 0; right: 0; height: 44px; background: #e8edf3; border-bottom: 1px solid #d3dbe4; display: flex; align-items: center; padding: 0 18px; gap: 9px; }
+  .chrome i { width: 13px; height: 13px; border-radius: 50%; background: #c9d2dc; }
+  .chrome i:nth-child(1) { background: #ff5f57; } .chrome i:nth-child(2) { background: #febc2e; } .chrome i:nth-child(3) { background: #28c840; }
+  .url { margin-left: 22px; height: 28px; width: 520px; border-radius: 14px; background: #fff; display: flex; align-items: center; padding: 0 14px; gap: 8px; font-size: 14px; font-weight: 600; color: #33465d; }
+  .url svg { width: 13px; height: 13px; }
+  #vp { position: absolute; left: 0; top: 44px; width: 1500px; height: 844px; overflow: hidden; }
+  #page { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform: scale(.78125); transform-origin: 0 0; }
+  #content { position: absolute; left: 0; top: 0; width: 1920px; }
+  #hdr { position: absolute; left: 0; top: 0; width: 1920px; height: 84px; z-index: 5; }
+  #rail { position: absolute; left: 0; top: 84px; width: 77px; height: 996px; z-index: 5; }
+
+  /* S4 product */
+  #s4 { background: var(--navy-deep); perspective: 2000px; }
+  #s4ring { left: -230px; top: -480px; width: 730px; height: 730px; border: 2px solid var(--teal); border-radius: 50%; opacity: .42; }
+  #s4axis { left: 930px; top: 0; width: 7px; height: 1080px; background: var(--teal); transform-origin: 50% 0; }
+  #pclogo { left: 150px; top: 170px; width: 240px; height: 116px; object-fit: cover; background: #fff; border-radius: 2px; transform-origin: 0 50%; }
+  #s4hl { left: 150px; top: 330px; width: 740px; font-size: 78px; font-weight: 600; letter-spacing: -.045em; line-height: 1.03; color: #fff; }
+  #s4copy { left: 150px; top: 680px; width: 700px; font-size: 22px; line-height: 1.6; color: #c7d4e2; }
+  .card { position: absolute; background: #fff; overflow: hidden; border: 1px solid rgb(255 255 255 / 18%); box-shadow: 0 30px 60px rgb(0 12 34 / 45%); }
+  .card img { width: 100%; height: 100%; object-fit: contain; }
+  #cMain { left: 1000px; top: 110px; width: 840px; height: 560px; }
+  #cMob { left: 1555px; top: 455px; width: 300px; height: 375px; }
+  #cIns { left: 1000px; top: 700px; width: 480px; height: 320px; }
+  #wipe { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; background: var(--teal-dark); z-index: 80; display: none; }
+
+  /* S5 work */
+  #s5 { background: #fff; }
+  #s5head { left: 150px; top: 92px; }
+  #s5head h2 { margin-top: 10px; font-size: 52px; font-weight: 600; letter-spacing: -.045em; line-height: 1.08; color: var(--navy); }
+  #s5frame { left: 150px; top: 262px; width: 1000px; height: 640px; overflow: hidden; background: var(--soft); }
+  #s5frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  #s5text { left: 1240px; top: 330px; width: 640px; height: 520px; overflow: hidden; }
+  .ptext { position: absolute; left: 0; top: 0; width: 640px; }
+  .ptext .idx { font-size: 18px; font-weight: 850; color: var(--teal-dark); }
+  .ptext .st { margin-top: 70px; font-size: 15px; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; color: var(--teal-dark); }
+  .ptext h3 { margin: 18px 0 12px; font-family: "Bricolage", sans-serif; font-size: 88px; letter-spacing: -.045em; line-height: 1; color: var(--ink); }
+  .ptext p { font-size: 26px; color: var(--muted); }
+  #s5bars { left: 1240px; top: 860px; display: flex; gap: 10px; }
+  #s5bars i { width: 64px; height: 4px; background: var(--line); }
+  #s5rule { left: 150px; top: 230px; width: 1620px; height: 1px; background: var(--line); transform-origin: 0 0; }
+
+  /* S6 process */
+  #s6 { background: var(--navy); }
+  #s6hl { left: 150px; top: 230px; font-size: 112px; font-weight: 600; letter-spacing: -.045em; line-height: 1.04; color: #fff; }
+  #s6sub { left: 150px; top: 860px; width: 900px; font-size: 26px; line-height: 1.6; color: #b9c8d9; }
+  #strip { left: 140px; top: 600px; width: 1641px; height: 158px; }
+  #strip img { width: 100%; height: 100%; }
+  .pulse { position: absolute; border-radius: 50%; border: 3px solid var(--teal); }
+
+  /* S7 CTA */
+  #s7 { background: var(--teal-dark); }
+  #s7mark { right: 110px; top: -330px; font-size: 1500px; font-weight: 800; line-height: 1; color: rgb(255 255 255 / 8%); }
+  #s7hl { left: 150px; top: 200px; font-size: 168px; font-weight: 650; letter-spacing: -.055em; line-height: 1; color: #fff; }
+  #s7sub { left: 156px; top: 600px; font-size: 30px; color: #e5ffff; }
+  #s7btn { left: 156px; top: 720px; width: 198px; height: 48px; transform-origin: 0 0; }
+  #s7btn img { position: absolute; }
+  #endc { position: absolute; inset: 0; background: #fff; z-index: 60; display: none; }
+  #endlogo { left: 380px; top: 280px; width: 1160px; }
+  #endurl { left: 0; width: 1920px; top: 700px; text-align: center; font-size: 60px; font-weight: 800; letter-spacing: -.02em; color: var(--navy); }
+  #endurl span { position: relative; }
+  #endline { position: absolute; left: 0; right: 0; bottom: -10px; height: 5px; background: var(--teal); transform-origin: 0 50%; }
+  #endmeta { left: 0; width: 1920px; top: 815px; text-align: center; font-size: 24px; font-weight: 600; color: var(--muted); letter-spacing: .02em; }
+  #endaxis { left: 0; top: 0; width: 1920px; height: 10px; background: var(--teal); transform-origin: 0 50%; }
+
+  #flash { position: absolute; inset: 0; background: #fff; z-index: 90; opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- S1: logo build -->
+  <div class="scene" id="s1">
+    <div class="abs" id="s1line"></div>
+    <div class="abs" id="s1group">
+      <img id="s1mark" src="assets/logo-mark.png">
+      <img id="s1word" src="assets/logo-word.png">
+    </div>
+  </div>
+
+  <!-- S2: hero headline, set in the site's own type -->
+  <div class="scene" id="s2">
+    <div class="abs" id="s2tick"></div>
+    <div class="abs display" id="s2hl">
+      <div><span class="mask"><span id="w1">Technology</span></span></div>
+      <div><span class="mask"><span id="w2">Built Around</span></span></div>
+      <div class="teal"><span class="mask"><span id="w3">How You</span></span> <span class="mask"><span id="w4">Work.</span></span></div>
+    </div>
+    <div class="abs" id="s2plane"></div>
+  </div>
+
+  <!-- S3: the real site in a browser -->
+  <div class="scene" id="s3">
+    <div class="abs" id="s3ring"></div>
+    <div class="abs" id="s3axis"></div>
+    <div class="abs" id="win">
+      <div class="chrome"><i></i><i></i><i></i>
+        <div class="url"><svg viewBox="0 0 16 16"><path fill="#33465d" d="M4 7V5a4 4 0 1 1 8 0v2h1v8H3V7h1Zm2 0h4V5a2 2 0 1 0-4 0v2Z"/></svg>bridgeaxisltd.com</div>
+      </div>
+      <div id="vp">
+        <div id="page">
+          <div id="content">
+            <img src="assets/full.png" style="width:1920px">
+            <img class="abs" id="hovExplore" src="assets/ui/explore-hover.png">
+            <img class="abs svch" src="assets/ui/svc0-hover.png">
+            <img class="abs svch" src="assets/ui/svc1-hover.png">
+            <img class="abs svch" src="assets/ui/svc2-hover.png">
+            <img class="abs svch" src="assets/ui/svc3-hover.png">
+            <img class="abs svch" src="assets/ui/svc4-hover.png">
+          </div>
+          <img id="hdr" src="assets/hdr.png">
+          <img id="rail" src="assets/rail.png">
+          <div class="ripple" id="rip3"></div>
+          <svg class="cursor" id="cur3" viewBox="0 0 34 46"><path d="M3 3v34l9-8 6 14 7-3-6-13h12L3 3Z" fill="#fff" stroke="#0b1b33" stroke-width="2.4" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S4: ParentConnect -->
+  <div class="scene" id="s4">
+    <div class="abs" id="s4ring"></div>
+    <img class="abs" id="pclogo" src="assets/parentconnect-logo.png">
+    <div class="abs display" id="s4hl">
+      <div><span class="mask"><span>Smarter school</span></span></div>
+      <div><span class="mask"><span>operations. Stronger</span></span></div>
+      <div><span class="mask"><span>parent connections.</span></span></div>
+    </div>
+    <div class="abs" id="s4btn" style="left:150px;top:820px;width:216px;height:48px;transform-origin:0 0">
+      <img class="abs" src="assets/ui/pc-normal.png" style="left:0;top:0">
+      <img class="abs" id="pcHover" src="assets/ui/pc-hover.png" style="left:-12px;top:-12px">
+    </div>
+    <div class="abs" id="s4axis"></div>
+    <div class="card" id="cIns"><img src="assets/parentconnect-insights-new.png"></div>
+    <div class="card" id="cMob"><img src="assets/parentconnect-attendance-mobile-new.png"></div>
+    <div class="card" id="cMain"><img src="assets/parentconnect-dashboard-new.png"></div>
+    <div class="ripple" id="rip4"></div>
+    <svg class="cursor" id="cur4" viewBox="0 0 34 46"><path d="M3 3v34l9-8 6 14 7-3-6-13h12L3 3Z" fill="#fff" stroke="#0b1b33" stroke-width="2.4" stroke-linejoin="round"/></svg>
+  </div>
+
+  <!-- S5: selected work -->
+  <div class="scene" id="s5">
+    <div class="abs" id="s5head"><p class="label">Selected work</p><h2 class="display">Software built to move organisations forward.</h2></div>
+    <div class="abs" id="s5rule"></div>
+    <div class="abs" id="s5frame">
+      <img src="assets/parentconnect-dashboard-new.png" style="object-fit:contain;background:#fff">
+      <img src="assets/business-operations-dashboard.png">
+      <img src="assets/inventory-logistics-system.png">
+      <img src="assets/crm-client-portal.png">
+    </div>
+    <div class="abs" id="s5text">
+      <div class="ptext"><div class="idx">01</div><div class="st">Flagship product</div><h3>ParentConnect</h3><p>School operations platform</p></div>
+      <div class="ptext"><div class="idx">02</div><div class="st">Internal project</div><h3>Business Operations</h3><p>Workflow and reporting dashboard</p></div>
+      <div class="ptext"><div class="idx">03</div><div class="st">Internal project</div><h3>Inventory &amp; Logistics</h3><p>Stock and warehouse management</p></div>
+      <div class="ptext"><div class="idx">04</div><div class="st">Internal project</div><h3>CRM &amp; Client Portal</h3><p>Relationship and pipeline management</p></div>
+    </div>
+    <div class="abs" id="s5bars"><i></i><i></i><i></i><i></i></div>
+  </div>
+
+  <!-- S6: process -->
+  <div class="scene" id="s6">
+    <p class="abs label" style="left:150px;top:180px;color:#fff" id="s6label">Our approach</p>
+    <div class="abs display" id="s6hl">
+      <div><span class="mask"><span>A clear path from</span></span></div>
+      <div><span class="mask"><span>idea to impact.</span></span></div>
+    </div>
+    <div class="abs" id="strip"><img src="assets/process-strip.png"></div>
+    <div id="pulses"></div>
+    <p class="abs" id="s6sub">Every project moves through deliberate stages with visible progress and shared decisions.</p>
+  </div>
+
+  <!-- S7: CTA + end card -->
+  <div class="scene" id="s7">
+    <div class="abs display" id="s7mark">A</div>
+    <div class="abs display" id="s7hl">
+      <div><span class="mask"><span>Ready to build</span></span></div>
+      <div><span class="mask"><span>what’s next?</span></span></div>
+    </div>
+    <p class="abs" id="s7sub">Tell us what you need to improve. We’ll help you turn it into technology that works.</p>
+    <div class="abs" id="s7btn">
+      <img src="assets/ui/consult-normal.png" style="left:0;top:0">
+      <img id="consultHover" src="assets/ui/consult-hover.png" style="left:-12px;top:-12px">
+    </div>
+    <div class="ripple" id="rip7"></div>
+    <svg class="cursor" id="cur7" viewBox="0 0 34 46"><path d="M3 3v34l9-8 6 14 7-3-6-13h12L3 3Z" fill="#fff" stroke="#0b1b33" stroke-width="2.4" stroke-linejoin="round"/></svg>
+    <div id="endc">
+      <div class="abs" id="endaxis"></div>
+      <img class="abs" id="endlogo" src="assets/logo-alpha.png">
+      <div class="abs" id="endurl"><span>bridgeaxisltd.com<i id="endline"></i></span></div>
+      <div class="abs" id="endmeta">info@bridgeaxisltd.com &nbsp;·&nbsp; Lagos, Nigeria</div>
+    </div>
+  </div>
+
+  <div id="wipe"></div>
+  <div id="flash"></div>
+</div>
+
+<script>
+const TL = __TIMELINE__;
+const B = 60 / TL.bpm;
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (bt, b0, b1) => clamp((bt - b0) / (b1 - b0));
+const outExpo = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
+const inExpo = (t) => (t <= 0 ? 0 : Math.pow(2, 10 * t - 10));
+const inOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const outBack = (t) => { const c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+const outCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+// Page coordinates of real elements, measured on the live build.
+const R = __RECTS__;
+const SCROLL_SERVICES = 1517;
+
+function show(id, on) { $(id).style.display = on ? 'block' : 'none'; }
+function css(el, o) { Object.assign((typeof el === 'string' ? $(el) : el).style, o); }
+
+// Mask-reveal a line: rises from below on beat b.
+function rise(el, bt, b, len = 0.5) {
+  const p = outExpo(seg(bt, b, b + len));
+  el.style.transform = `translateY(${(1 - p) * 150}%) skewY(${(1 - p) * 6}deg)`;
+}
+
+// Cursor with a press on `click` beat.
+function cursorAt(el, x, y, bt, click) {
+  const press = click == null ? 0 : Math.max(0, 1 - Math.abs(bt - click) / 0.18);
+  el.style.transform = `translate(${x}px, ${y}px) scale(${1 - 0.22 * press})`;
+}
+function ripple(el, x, y, bt, click, size = 140) {
+  const p = seg(bt, click, click + 0.7);
+  if (p <= 0 || p >= 1) { el.style.opacity = 0; return; }
+  const r = outCubic(p) * size;
+  css(el, { left: `${x - r}px`, top: `${y - r}px`, width: `${2 * r}px`, height: `${2 * r}px`, opacity: (1 - p) });
+}
+// Cursor path through keyframes [[beat, x, y], ...]
+function path(keys, bt) {
+  if (bt <= keys[0][0]) return keys[0].slice(1);
+  for (let i = 1; i < keys.length; i++) {
+    if (bt <= keys[i][0]) {
+      const t = inOut(seg(bt, keys[i - 1][0], keys[i][0]));
+      return [lerp(keys[i - 1][1], keys[i][1], t), lerp(keys[i - 1][2], keys[i][2], t)];
+    }
+  }
+  return keys[keys.length - 1].slice(1);
+}
+
+function render(t) {
+  const bt = t / B;
+
+  // Camera punch on every impact and click.
+  let punch = 0;
+  for (const h of [...TL.impacts, ...TL.clicks]) {
+    const dt = t - h * B;
+    if (dt >= 0) punch += (TL.impacts.includes(h) ? 0.022 : 0.009) * Math.exp(-dt * 11);
+  }
+  $('#stage').style.transform = `scale(${1 + punch})`;
+
+  let flash = 0;
+  for (const h of [8, 28]) { const dt = t - h * B; if (dt >= 0) flash += 0.55 * Math.exp(-dt * 13); }
+  $('#flash').style.opacity = flash;
+
+  // ---------- S1 logo ----------
+  show('#s1', bt < 4);
+  if (bt < 4) {
+    const grow = outExpo(seg(bt, 0, 0.9));
+    const gone = seg(bt, 1, 1.25);
+    css('#s1line', { transform: `scaleY(${grow}) scaleX(${1 - gone})`, opacity: 1 - gone });
+    const m = seg(bt, 1, 1.45);
+    css('#s1mark', { opacity: clamp(m * 3), transform: `scale(${lerp(0.25, 1, outBack(m))}) rotate(${(1 - outExpo(m)) * -12}deg)` });
+    const slide = outExpo(seg(bt, 2, 2.7));
+    const zoom = inExpo(seg(bt, 3.4, 4));
+    const drift = 1 + 0.035 * seg(bt, 1, 3.4);
+    // zoom into the teal leg of the mark (approx 240,170 in mark space)
+    css('#s1group', { transform: `translateX(${(1 - slide) * 366}px)`, transformOrigin: '0 0' });
+    css('#s1word', { clipPath: `inset(0 ${(1 - slide) * 100}% 0 0)`, opacity: slide > 0 ? 1 : 0 });
+    const s = drift * (1 + zoom * 24);
+    css('#s1', { transform: `scale(${s})`, transformOrigin: `${368 + 262}px ${355 + 185}px`, filter: `blur(${zoom * 6}px)` });
+  }
+
+  // ---------- S2 headline ----------
+  show('#s2', bt >= 4 && bt < 8);
+  if (bt >= 4 && bt < 8) {
+    css('#s2tick', { transform: `scaleY(${outExpo(seg(bt, 4, 4.6))})` });
+    rise($('#w1'), bt, 4); rise($('#w2'), bt, 5); rise($('#w3'), bt, 6); rise($('#w4'), bt, 7, 0.35);
+    const out = inExpo(seg(bt, 7.55, 8));
+    css('#s2hl', { transform: `scale(${1 + 0.04 * seg(bt, 4, 8)}) translateY(${-out * 260}px)`, filter: `blur(${out * 10}px)` });
+    const pl = inOut(seg(bt, 7.45, 8));
+    css('#s2plane', { transform: `translate(${lerp(1920, -700, pl)}px, ${lerp(1080, -800, pl)}px)` });
+  }
+
+  // ---------- S3 the live site ----------
+  show('#s3', bt >= 8 && bt < 14);
+  if (bt >= 8 && bt < 14) {
+    const e = outExpo(seg(bt, 8, 9.1));
+    const zoom = inOut(seg(bt, 11.4, 14));
+    const fly = inExpo(seg(bt, 13.45, 14));
+    css('#win', {
+      transform: `translateX(${-fly * 2600}px) translateY(${(1 - e) * 260}px) rotateX(${(1 - e) * 32}deg) rotateY(${(1 - e) * -26 + fly * 35}deg) rotateZ(${(1 - e) * 7}deg) scale(${lerp(0.62, 1, e) * (1 + 0.12 * zoom)})`,
+      transformOrigin: '70% 45%',
+      filter: `blur(${fly * 8}px)`,
+    });
+    css('#s3ring', { transform: `scale(${lerp(0.6, 1, e)}) rotate(${bt * 4}deg)` });
+
+    const sc = inOut(seg(bt, 10.3, 11.25)) * SCROLL_SERVICES;
+    $('#content').style.transform = `translateY(${-sc}px)`;
+
+    // Explore button: real hover state while the cursor is on it
+    const ex = R.explore;
+    const hovOn = seg(bt, 9.55, 9.75) * (1 - seg(bt, 10.3, 10.45));
+    const press = Math.max(0, 1 - Math.abs(bt - 10) / 0.2);
+    css('#hovExplore', { left: `${ex.x - 12}px`, top: `${ex.y - 12}px`, opacity: hovOn, transform: `scale(${1 - 0.04 * press})` });
+
+    // Service rows: real hover states, cursor walks down on 8ths
+    $$('.svch').forEach((img, i) => {
+      const r = R['svc' + i];
+      const b0 = 11.5 + 0.5 * i;
+      const on = seg(bt, b0 - 0.05, b0 + 0.08) * (1 - seg(bt, b0 + 0.5, b0 + 0.62));
+      css(img, { left: `${r.x - 12}px`, top: `${r.y - 12}px`, opacity: i === 4 ? seg(bt, b0 - 0.05, b0 + 0.08) : on });
+    });
+
+    // Cursor in viewport (page-scale) coordinates
+    const cx = ex.x + ex.w * 0.55, cy = ex.y + ex.h * 0.55;
+    const rows = [0, 1, 2, 3, 4].map((i) => [11.5 + 0.5 * i, 1180 + i * 22, R['svc' + i].y - SCROLL_SERVICES + 70]);
+    const keys = [[8.8, 1500, 1250], [9.7, cx, cy], [11.2, cx, cy], ...rows.flatMap((r) => [[r[0] - 0.22, r[1], r[2]], [r[0] + 0.3, r[1], r[2]]])];
+    const [px, py] = path(keys, bt);
+    const clickB = [10, ...rows.map((r) => r[0])].reduce((a, c) => (Math.abs(bt - c) < Math.abs(bt - a) ? c : a));
+    cursorAt($('#cur3'), px, py, bt, clickB === 10 ? 10 : null);
+    css('#cur3', { width: '44px', height: '60px', opacity: seg(bt, 8.8, 9) });
+    ripple($('#rip3'), cx, cy, bt, 10, 120);
+  }
+
+  // ---------- S4 ParentConnect ----------
+  show('#s4', bt >= 14 && bt < 20.3);
+  if (bt >= 14 && bt < 20.3) {
+    css('#s4axis', { transform: `scaleY(${outExpo(seg(bt, 14, 14.6))})` });
+    css('#s4ring', { transform: `scale(${lerp(0.5, 1, outExpo(seg(bt, 14, 15)))}) rotate(${bt * 5}deg)` });
+    const lg = seg(bt, 14, 14.45);
+    css('#pclogo', { opacity: clamp(lg * 3), transform: `scale(${lerp(0.4, 1, outBack(lg))})` });
+    $$('#s4hl .mask > span').forEach((el, i) => rise(el, bt, 14.25 + 0.25 * i, 0.6));
+    const bIn = seg(bt, 15.5, 15.9);
+    const pcPress = Math.max(0, 1 - Math.abs(bt - 17.5) / 0.2);
+    css('#s4btn', { opacity: bIn, transform: `translateY(${(1 - outExpo(bIn)) * 40}px) scale(${1.5 * (1 - 0.04 * pcPress)})` });
+    css('#pcHover', { opacity: seg(bt, 17.1, 17.25) });
+
+    const cards = [['#cMain', 15], ['#cMob', 16], ['#cIns', 17]];
+    const zz = inOut(seg(bt, 18, 18.8));
+    const drift = seg(bt, 18.8, 20.3);
+    cards.forEach(([id, b], i) => {
+      const p = seg(bt, b - 0.1, b + 0.45);
+      const e = outExpo(p);
+      const fadeOthers = id === '#cMain' ? 1 : 1 - zz;
+      let tf = `translateY(${(1 - e) * 240}px) rotateX(${(1 - e) * -40}deg) rotateZ(${(1 - e) * (i - 1) * 8}deg) scale(${lerp(0.7, 1, e)})`;
+      if (id === '#cMain') {
+        // punch into the real stats row of the dashboard
+        const P = [1000 + 0.57 * 840, 110 + 0.2 * 560];
+        const s = lerp(1, 2.5, zz) * (1 + 0.08 * drift);
+        tf = `translate(${(960 - P[0]) * zz}px, ${(400 - P[1]) * zz}px) ` + tf + ` scale(${s})`;
+        css(id, { transformOrigin: `${0.57 * 840}px ${0.2 * 560}px`, zIndex: 20 });
+      }
+      css(id, { opacity: clamp(p * 4) * fadeOthers, transform: tf });
+    });
+    const textFade = 1 - zz;
+    ['#pclogo', '#s4hl', '#s4axis', '#s4ring'].forEach((s) => ($(s).style.opacity = s === '#pclogo' ? Math.min(textFade, clamp(lg * 3)) : textFade));
+    if (bt > 18) $('#s4btn').style.opacity = textFade;
+
+    const btnC = [150 + 216 * 1.5 * 0.6, 820 + 48 * 1.5 * 0.55];
+    const [px, py] = path([[16.4, 700, 1150], [17.2, btnC[0], btnC[1]], [17.8, btnC[0], btnC[1]], [18.3, btnC[0] - 60, 1200]], bt);
+    cursorAt($('#cur4'), px, py, bt, 17.5);
+    css('#cur4', { width: '40px', height: '54px', opacity: seg(bt, 16.4, 16.6) * (1 - seg(bt, 18, 18.3)) });
+    ripple($('#rip4'), btnC[0], btnC[1], bt, 17.5, 160);
+  }
+  // teal wipe from product into work
+  const wIn = inOut(seg(bt, 19.45, 20)), wOut = outExpo(seg(bt, 20, 20.35));
+  show('#wipe', bt >= 19.45 && bt < 20.35);
+  css('#wipe', { transform: `translateX(${(1 - wIn) * 1920 - wOut * 1920}px)` });
+
+  // ---------- S5 selected work ----------
+  show('#s5', bt >= 20 && bt < 24.05);
+  if (bt >= 20 && bt < 24.05) {
+    css('#s5rule', { transform: `scaleX(${outExpo(seg(bt, 20, 20.8))})` });
+    const imgs = $$('#s5frame img'), txts = $$('.ptext'), bars = $$('#s5bars i');
+    imgs.forEach((im, i) => {
+      const p = outExpo(seg(bt, 20 + i - 0.02, 20 + i + 0.32));
+      const slow = 1.08 - 0.08 * seg(bt, 20 + i, 21 + i + 0.3);
+      css(im, { transform: `translateX(${(1 - p) * 100}%) scale(${slow})`, zIndex: i, visibility: bt >= 20 + i - 0.02 ? 'visible' : 'hidden' });
+      if (i === 0) im.style.transform = `translateX(${(1 - outExpo(seg(bt, 19.9, 20.3))) * 30}%) scale(${slow})`;
+    });
+    txts.forEach((tx, i) => {
+      const pin = outExpo(seg(bt, 20 + i, 20 + i + 0.4));
+      const pout = i < 3 ? inExpo(seg(bt, 21 + i - 0.12, 21 + i)) : 0;
+      css(tx, { transform: `translateY(${(1 - pin) * 110 - pout * 110}%)`, opacity: pin > 0 ? 1 : 0 });
+    });
+    bars.forEach((b, i) => (b.style.background = bt >= 20 + i ? 'var(--teal-dark)' : 'var(--line)'));
+    css('#s5head', { transform: `translateY(${(1 - outExpo(seg(bt, 20, 20.5))) * 40}px)`, opacity: seg(bt, 20, 20.3) });
+  }
+
+  // ---------- S6 process ----------
+  show('#s6', bt >= 23.5 && bt < 28);
+  if (bt >= 23.5 && bt < 28) {
+    const up = inOut(seg(bt, 23.5, 24));
+    css('#s6', { transform: `translateY(${(1 - up) * 1080}px)` });
+    $$('#s6hl .mask > span').forEach((el, i) => rise(el, bt, 24 + 0.25 * i, 0.6));
+    css('#s6label', { opacity: seg(bt, 24, 24.3) });
+    const nodes = [27, 191, 356, 521, 686, 850, 1015];
+    let rev = 0;
+    nodes.forEach((n, i) => {
+      const p = outExpo(seg(bt, 24.5 + 0.5 * i, 24.5 + 0.5 * i + 0.3));
+      const prev = i === 0 ? 0 : nodes[i - 1] + 150;
+      const end = i === 6 ? 1172 : n + 150;
+      if (p > 0) rev = lerp(prev, end, p);
+    });
+    css('#strip', { clipPath: `inset(0 ${100 - (rev / 1172) * 100}% 0 0)` });
+    const pul = $('#pulses');
+    if (!pul.children.length) nodes.forEach(() => { const d = document.createElement('div'); d.className = 'pulse'; pul.appendChild(d); });
+    [...pul.children].forEach((d, i) => {
+      const p = seg(bt, 24.5 + 0.5 * i, 24.5 + 0.5 * i + 0.9);
+      const r = 10 + outCubic(p) * 50;
+      const x = 140 + nodes[i] * 1.4, y = 600 + (255 - 232) * 1.4;
+      css(d, { left: `${x - r}px`, top: `${y - r}px`, width: `${2 * r}px`, height: `${2 * r}px`, opacity: p > 0 && p < 1 ? 1 - p : 0 });
+    });
+    css('#s6sub', { opacity: seg(bt, 25, 25.5), transform: `translateY(${(1 - outExpo(seg(bt, 25, 25.6))) * 30}px)` });
+  }
+
+  // ---------- S7 CTA + end card ----------
+  show('#s7', bt >= 28);
+  if (bt >= 28) {
+    css('#s7mark', { transform: `translateY(${(1 - outExpo(seg(bt, 28, 30))) * 260}px)` });
+    $$('#s7hl .mask > span').forEach((el, i) => rise(el, bt, 28 + 0.5 * i, 0.6));
+    css('#s7sub', { opacity: seg(bt, 29, 29.4), transform: `translateY(${(1 - outExpo(seg(bt, 29, 29.6))) * 24}px)` });
+    const bp = seg(bt, 29, 29.4);
+    const press = Math.max(0, 1 - Math.abs(bt - 30) / 0.2);
+    css('#s7btn', { opacity: bp, transform: `scale(${lerp(0.6, 1.6, outBack(bp)) * (1 - 0.04 * press)})` });
+    css('#consultHover', { position: 'absolute', opacity: seg(bt, 29.65, 29.8) });
+    const bc = [156 + 198 * 1.6 * 0.55, 720 + 48 * 1.6 * 0.55];
+    const [px, py] = path([[29.1, 1100, 1180], [29.8, bc[0], bc[1]]], bt);
+    cursorAt($('#cur7'), px, py, bt, 30);
+    css('#cur7', { width: '44px', height: '60px', opacity: seg(bt, 29.1, 29.3) * (1 - seg(bt, 30.5, 30.6)) });
+    ripple($('#rip7'), bc[0], bc[1], bt, 30, 180);
+
+    // white end card grows out of the clicked button
+    const ec = inOut(seg(bt, 30.15, 30.7));
+    show('#endc', ec > 0);
+    css('#endc', { clipPath: `circle(${ec * 2300}px at ${bc[0]}px ${bc[1]}px)` });
+    const lg = seg(bt, 30.5, 31.1);
+    const hold = seg(bt, 30.5, 32);
+    css('#endlogo', { opacity: clamp(lg * 2), transform: `scale(${lerp(0.86, 1, outExpo(lg)) * (1 + 0.03 * hold)})` });
+    css('#endurl', { opacity: seg(bt, 31, 31.3), transform: `translateY(${(1 - outExpo(seg(bt, 31, 31.5))) * 30}px)` });
+    css('#endline', { transform: `scaleX(${outExpo(seg(bt, 31.1, 31.8))})` });
+    css('#endmeta', { opacity: seg(bt, 31.3, 31.7) });
+    css('#endaxis', { transform: `scaleX(${outExpo(seg(bt, 30.5, 31.5))})` });
+  }
+}
+
+window.render = render;
+window.ready = (async () => {
+  await document.fonts.ready;
+  await Promise.all([...document.images].map((i) => i.decode().catch(() => {})));
+  render(0);
+  return true;
+})();
+</script>
+</body>
+</html>
