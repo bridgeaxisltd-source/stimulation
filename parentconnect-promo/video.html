@@ -1,0 +1,340 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ParentConnect Promo</title>
+<style>
+  @font-face { font-family: "Bricolage"; src: url(assets/bricolage-grotesque-latin-standard-normal.woff2) format("woff2"); font-weight: 200 800; }
+  @font-face { font-family: "Manrope"; src: url(assets/manrope-latin-wght-normal.woff2) format("woff2"); font-weight: 200 800; }
+  :root { --navy: #04234f; --navy-deep: #031b3d; --teal: #08a7a4; --teal-dark: #058c8a; --ink: #09234b; --muted: #5c6b7f; --soft: #f4f7fa; --line: #dbe3eb; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+  body { font-family: "Manrope", sans-serif; -webkit-font-smoothing: antialiased; }
+  img { display: block; }
+  #stage { position: absolute; inset: 0; overflow: hidden; background: var(--soft); transform-origin: 50% 50%; }
+  .scene { position: absolute; inset: 0; overflow: hidden; display: none; z-index: 0; isolation: isolate; }
+  .abs { position: absolute; }
+  .display { font-family: "Bricolage", sans-serif; }
+  .mask { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .12em; margin-bottom: -.12em; }
+  .mask > span { display: inline-block; }
+  .label { font-size: 26px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--teal-dark); }
+  .touch { position: absolute; width: 104px; height: 104px; margin: -52px 0 0 -52px; border-radius: 50%; background: rgb(255 255 255 / 30%); border: 4px solid #fff; box-shadow: 0 8px 24px rgb(0 0 0 / 35%); z-index: 30; }
+  .ripple { position: absolute; border-radius: 50%; border: 5px solid var(--teal); z-index: 29; }
+  .phone { position: absolute; transform-origin: 0 0; border-radius: 64px; filter: drop-shadow(0 40px 50px rgb(4 35 79 / 35%)); }
+  .phone > img { border-radius: 64px; }
+
+  /* hook */
+  #s1 { background: var(--navy); }
+  #s1time { left: 0; width: 1080px; top: 560px; text-align: center; font-size: 250px; font-weight: 700; letter-spacing: -.06em; line-height: 1; color: var(--teal); }
+  #s1q { left: 0; width: 1080px; top: 860px; text-align: center; font-size: 118px; font-weight: 650; letter-spacing: -.05em; line-height: 1.02; color: #fff; }
+  #s1ring { left: 290px; top: 380px; width: 500px; height: 500px; }
+  #s1bar { left: 140px; top: 1180px; width: 800px; height: 8px; background: var(--teal); transform-origin: 0 50%; }
+
+  /* shared header slot */
+  .hslot { position: absolute; left: 0; width: 1080px; top: 230px; height: 190px; text-align: center; font-size: 150px; font-weight: 650; letter-spacing: -.055em; line-height: 1; color: var(--navy); }
+  .hslot .mask { position: absolute; left: 0; right: 0; }
+
+  /* confirm / notify */
+  #s2 { background: var(--soft); perspective: 2400px; }
+  #s2deco { left: -260px; top: 1280px; width: 1600px; height: 1400px; background: var(--navy); border-radius: 52% 52% 0 0; }
+  #ph1, #ph2 { left: 274px; top: 440px; }
+  #ph1 img, #ph2 img { width: 100%; height: 100%; }
+  #ph1 { width: 435px; height: 1020px; }
+  #ph2 { width: 425px; height: 1031px; }
+  #ncard { width: 336px; height: 114px; overflow: hidden; border-radius: 14px; box-shadow: 0 30px 60px rgb(0 10 30 / 50%); transform-origin: 50% 50%; z-index: 20; }
+  #ncard img { position: absolute; left: -29px; top: -655px; width: 425px; height: 1031px; }
+  #notifs { left: 214px; top: 560px; width: 261px; height: 476px; transform-origin: 0 0; background: #fff; border-radius: 10px; box-shadow: 0 30px 70px rgb(4 35 79 / 30%); overflow: hidden; }
+  #notifs img { width: 261px; height: 476px; }
+  #s2sub { left: 0; width: 1080px; top: 440px; text-align: center; font-size: 40px; font-weight: 700; color: var(--teal-dark); }
+
+  /* visibility */
+  #s4 { background: #fff; }
+  #s4hl { left: 0; width: 1080px; top: 220px; text-align: center; font-size: 118px; font-weight: 650; letter-spacing: -.055em; line-height: 1.02; color: var(--navy); }
+  .stat { position: absolute; width: 176px; transform-origin: 50% 50%; border: 1px solid var(--line); box-shadow: 0 18px 40px rgb(4 35 79 / 12%); background: #fff; }
+  .stat img { width: 100%; }
+  #chart { left: 153px; top: 1090px; width: 407px; height: 239px; transform-origin: 0 0; border: 1px solid var(--line); background: #fff; box-shadow: 0 18px 40px rgb(4 35 79 / 10%); }
+  #chart img { width: 100%; height: 100%; }
+
+  /* features */
+  #s5 { background: var(--navy); }
+  .feat { position: absolute; left: 110px; display: flex; align-items: center; gap: 40px; font-size: 76px; font-weight: 600; letter-spacing: -.035em; color: #fff; }
+  .feat svg { width: 100px; height: 100px; flex: none; }
+  #s5label { left: 110px; top: 420px; color: var(--teal); }
+
+  /* end */
+  #s6 { background: #fff; }
+  #pclogo { left: 180px; top: 300px; width: 720px; }
+  #s6hl { left: 0; width: 1080px; top: 640px; text-align: center; font-size: 86px; font-weight: 600; letter-spacing: -.045em; line-height: 1.04; color: var(--navy); }
+  #s6btn { left: 238px; top: 1000px; width: 216px; height: 48px; transform-origin: 0 0; }
+  #s6btn img { width: 216px; height: 48px; }
+  #s6demo { left: 0; width: 1080px; top: 1200px; text-align: center; font-size: 36px; font-weight: 700; color: var(--ink); }
+  #s6demo b { color: var(--teal-dark); }
+  #s6by { left: 0; width: 1080px; top: 1320px; text-align: center; }
+  #s6by p { font-size: 22px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  #s6by img { width: 430px; margin: 14px auto 0; }
+  #s6axis { left: 0; top: 0; width: 1080px; height: 14px; background: var(--teal); transform-origin: 0 50%; }
+
+  #flash { position: absolute; inset: 0; background: #fff; z-index: 90; opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <div class="scene" id="s1">
+    <svg class="abs" id="s1ring" viewBox="0 0 500 500"><circle cx="250" cy="250" r="236" fill="none" stroke="rgb(8 167 164 / 25%)" stroke-width="6"/><circle id="s1arc" cx="250" cy="250" r="236" fill="none" stroke="#08a7a4" stroke-width="6" stroke-linecap="round" transform="rotate(-90 250 250)" stroke-dasharray="1483" stroke-dashoffset="1483"/><line id="s1hand" x1="250" y1="250" x2="250" y2="70" stroke="#fff" stroke-width="8" stroke-linecap="round"/></svg>
+    <div class="abs display" id="s1time"><span class="mask"><span id="h0">8:15 AM.</span></span></div>
+    <div class="abs display" id="s1q">
+      <div><span class="mask"><span id="h1">Is every child</span></span></div>
+      <div><span class="mask"><span id="h2">accounted for?</span></span></div>
+    </div>
+    <div class="abs" id="s1bar"></div>
+  </div>
+
+  <div class="scene" id="s2">
+    <div class="abs" id="s2deco"></div>
+    <div class="hslot display">
+      <span class="mask"><span id="kw0">Search.</span></span>
+      <span class="mask"><span id="kw1">Confirm.</span></span>
+      <span class="mask"><span id="kw2" style="color:var(--teal-dark)">Notify.</span></span>
+    </div>
+    <div class="phone" id="ph1"><img src="assets/phone-roster.png"><div class="ripple" id="rip1"></div><div class="touch" id="t1"></div></div>
+    <div class="phone" id="ph2"><img src="assets/phone-submitted.png"></div>
+    <div class="abs" id="ncard"><img src="assets/phone-submitted.png"></div>
+    <div class="abs" id="s2sub">Instant parent alerts</div>
+    <div class="abs" id="notifs"><img src="assets/notifs.png"></div>
+  </div>
+
+  <div class="scene" id="s4">
+    <div class="abs display" id="s4hl">
+      <div><span class="mask"><span>Attendance</span></span></div>
+      <div><span class="mask"><span style="color:var(--teal-dark)">visibility.</span></span></div>
+    </div>
+    <div class="stat"><img src="assets/stat0.png"></div>
+    <div class="stat"><img src="assets/stat1.png"></div>
+    <div class="stat"><img src="assets/stat2.png"></div>
+    <div class="stat"><img src="assets/stat3.png"></div>
+    <div class="abs" id="chart"><img src="assets/chart.png"></div>
+  </div>
+
+  <div class="scene" id="s5">
+    <p class="abs label" id="s5label">ParentConnect</p>
+    <div class="feat" style="top:560px"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#08a7a4"/><path d="M29 51l14 14 29-30" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Attendance visibility</span></div>
+    <div class="feat" style="top:760px"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#08a7a4"/><path d="M29 51l14 14 29-30" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Instant parent alerts</span></div>
+    <div class="feat" style="top:960px"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#08a7a4"/><path d="M29 51l14 14 29-30" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Duty management</span></div>
+    <div class="feat" style="top:1160px"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#08a7a4"/><path d="M29 51l14 14 29-30" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Secure records</span></div>
+  </div>
+
+  <div class="scene" id="s6">
+    <div class="abs" id="s6axis"></div>
+    <img class="abs" id="pclogo" src="assets/pc-logo-alpha.png">
+    <div class="abs display" id="s6hl">
+      <div><span class="mask"><span>Smarter school</span></span></div>
+      <div><span class="mask"><span>operations. Stronger</span></span></div>
+      <div><span class="mask"><span>parent connections.</span></span></div>
+    </div>
+    <div class="abs" id="s6btn"><img src="assets/btn-pc.png"></div>
+    <div class="ripple" id="rip6"></div>
+    <div class="touch" id="t6"></div>
+    <div class="abs" id="s6demo">Book a demo · <b>info@bridgeaxisltd.com</b></div>
+    <div class="abs" id="s6by"><p>Built by</p><img src="assets/logo-alpha.png"></div>
+  </div>
+
+  <div id="flash"></div>
+</div>
+
+<script>
+const TL = __TIMELINE__;
+const B = 60 / TL.bpm;
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (bt, b0, b1) => clamp((bt - b0) / (b1 - b0));
+const outExpo = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
+const inExpo = (t) => (t <= 0 ? 0 : Math.pow(2, 10 * t - 10));
+const inOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const outBack = (t) => { const c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+const outCubic = (t) => 1 - Math.pow(1 - t, 3);
+function show(id, on) { $(id).style.display = on ? 'block' : 'none'; }
+function css(el, o) { Object.assign((typeof el === 'string' ? $(el) : el).style, o); }
+
+// Mask reveal: rise in on beat `b`, optionally rise out on beat `out`.
+function rise(el, bt, b, len = 0.5, out = null) {
+  const p = outExpo(seg(bt, b, b + len));
+  const q = out == null ? 0 : inExpo(seg(bt, out - 0.25, out));
+  el.style.transform = `translateY(${(1 - p) * 150 - q * 150}%) skewY(${(1 - p) * 6}deg)`;
+}
+function path(keys, bt) {
+  if (bt <= keys[0][0]) return keys[0].slice(1);
+  for (let i = 1; i < keys.length; i++) {
+    if (bt <= keys[i][0]) {
+      const t = inOut(seg(bt, keys[i - 1][0], keys[i][0]));
+      return [lerp(keys[i - 1][1], keys[i][1], t), lerp(keys[i - 1][2], keys[i][2], t)];
+    }
+  }
+  return keys[keys.length - 1].slice(1);
+}
+function touch(el, x, y, bt, taps, size = 1) {
+  const press = Math.max(0, ...taps.map((c) => 1 - Math.abs(bt - c) / 0.16));
+  css(el, { left: `${x}px`, top: `${y}px`, transform: `scale(${size * (1 - 0.25 * press)})`, background: `rgb(255 255 255 / ${30 + 35 * press}%)` });
+}
+function ripple(el, x, y, bt, taps, size) {
+  const c = taps.filter((c) => bt >= c).pop();
+  const p = c == null ? 1 : seg(bt, c, c + 0.6);
+  if (p <= 0 || p >= 1) { el.style.opacity = 0; return; }
+  const r = outCubic(p) * size;
+  css(el, { left: `${x - r}px`, top: `${y - r}px`, width: `${2 * r}px`, height: `${2 * r}px`, opacity: 1 - p });
+}
+
+function render(t) {
+  const bt = t / B;
+  let punch = 0;
+  for (const h of [...TL.impacts, ...TL.clicks]) {
+    const dt = t - h * B;
+    if (dt >= 0) punch += (TL.impacts.includes(h) ? 0.025 : 0.01) * Math.exp(-dt * 11);
+  }
+  $('#stage').style.transform = `scale(${1 + punch})`;
+  let flash = 0;
+  for (const h of [8, 24]) { const dt = t - h * B; if (dt >= 0) flash += 0.5 * Math.exp(-dt * 13); }
+  $('#flash').style.opacity = flash;
+
+  // ---------- hook ----------
+  show('#s1', bt < 4.05);
+  if (bt < 4.05) {
+    rise($('#h0'), bt, 1, 0.4); rise($('#h1'), bt, 2); rise($('#h2'), bt, 3);
+    const arc = seg(bt, 0, 3.5);
+    $('#s1arc').setAttribute('stroke-dashoffset', 1483 * (1 - arc));
+    // clock hand jumps on every tick
+    const steps = Math.floor(bt * 2) + outExpo(clamp((bt * 2) % 1 * 4));
+    $('#s1hand').setAttribute('transform', `rotate(${steps * 22.5} 250 250)`);
+    css('#s1ring', { opacity: 1 - seg(bt, 0.9, 1.3), transform: `scale(${1 + 0.6 * outExpo(seg(bt, 1, 2))})` });
+    css('#s1bar', { transform: `scaleX(${outExpo(seg(bt, 3.2, 3.8))})` });
+    const out = inExpo(seg(bt, 3.55, 4));
+    css('#s1', { transform: `translateY(${-out * 1920}px)` });
+  }
+
+  // ---------- search / confirm / notify ----------
+  show('#s2', bt >= 3.5 && bt < 14.05);
+  if (bt >= 3.5 && bt < 14.05) {
+    const up = inOut(seg(bt, 3.5, 4));
+    css('#s2', { transform: `translateY(${(1 - up) * 1920}px)` });
+    css('#s2deco', { transform: `translateY(${(1 - outExpo(seg(bt, 4, 5))) * 500}px)` });
+    rise($('#kw0'), bt, 4, 0.5, 6); rise($('#kw1'), bt, 6, 0.5, 8); rise($('#kw2'), bt, 8, 0.5);
+
+    // roster phone: enters, zooms on search, taps Mark Present twice, taps Submit
+    const k = 1.22;
+    const e = outExpo(seg(bt, 4, 4.8));
+    const z = inOut(seg(bt, 4.6, 5.4)) * (1 - inOut(seg(bt, 6.8, 7.3)));
+    const zs = 1 + 0.45 * z;
+    const flip1 = inExpo(seg(bt, 7.75, 8));
+    css('#ph1', {
+      display: bt < 8 ? 'block' : 'none',
+      transform: `translate(${-200 * z}px, ${(1 - e) * 900}px) rotateZ(${(1 - e) * 10}deg) scale(${k * zs}) translateX(217px) rotateY(${flip1 * 90}deg) translateX(-217px)`,
+    });
+    const taps = [6, 6.5, 7.5];
+    const [tx, ty] = path([[5.2, 520, 1150], [5.8, 355, 378], [6.25, 355, 378], [6.4, 355, 511], [6.8, 355, 511], [7.3, 244, 867], [7.8, 244, 867]], bt);
+    touch($('#t1'), tx, ty, bt, taps, 1 / k);
+    css('#t1', { opacity: seg(bt, 5.2, 5.4) * (1 - seg(bt, 7.7, 7.85)) });
+    ripple($('#rip1'), tx, ty, bt, taps, 90);
+
+    // submitted phone flips in on the drop, then hands over to the alerts feed
+    const flip2 = outExpo(seg(bt, 8, 8.6));
+    const away = inOut(seg(bt, 9.9, 10.5));
+    css('#ph2', {
+      display: bt >= 8 ? 'block' : 'none',
+      transform: `translateX(${-1100 * away}px) scale(${k}) translateX(212px) rotateY(${(1 - flip2) * -90}deg) translateX(-212px)`,
+    });
+    // notification card pops off the real screen
+    const pop = outBack(seg(bt, 9, 9.45));
+    const cardX = 274 + 29 * k, cardY = 440 + 655 * k;
+    css('#ncard', {
+      display: bt >= 9 && bt < 10.6 ? 'block' : 'none',
+      left: `${cardX}px`, top: `${cardY}px`,
+      transform: `translateX(${-1100 * away + (110 - cardX) * pop}px) translateY(${-560 * pop}px) scale(${k * lerp(1, 2.1, pop)})`,
+      transformOrigin: '0 50%',
+    });
+    const ns = 2.5, nIn = outExpo(seg(bt, 10, 10.6));
+    css('#notifs', { display: bt >= 9.9 ? 'block' : 'none', transform: `translateX(${(1 - nIn) * 1100}px) scale(${ns})` });
+    const rows = [83, 139, 194, 250, 305, 361, 416, 476];
+    let clip = 83;
+    rows.forEach((r, i) => { if (i > 0) { const p = outExpo(seg(bt, 10.5 + 0.5 * (i - 1), 10.5 + 0.5 * (i - 1) + 0.3)); if (p > 0) clip = lerp(rows[i - 1], r, p); } });
+    css('#notifs', { height: `${clip}px` });
+    css('#s2sub', { opacity: seg(bt, 10.2, 10.5), transform: `translateY(${(1 - outExpo(seg(bt, 10.2, 10.7))) * 30}px)` });
+    const out = inExpo(seg(bt, 13.55, 14));
+    if (out > 0) css('#s2', { transform: `translateX(${-out * 1080}px)` });
+  }
+
+  // ---------- attendance visibility ----------
+  show('#s4', bt >= 13.6 && bt < 20.05);
+  if (bt >= 13.6 && bt < 20.05) {
+    const inn = inOut(seg(bt, 13.55, 14));
+    css('#s4', { transform: `translateX(${(1 - inn) * 1080}px)` });
+    $$('#s4hl .mask > span').forEach((el, i) => rise(el, bt, 14 + 0.25 * i, 0.6));
+    const sc = 2.1, pos = [[155, 520], [555, 520], [155, 800], [555, 800]];
+    const punch2 = inOut(seg(bt, 18, 18.6));
+    $$('.stat').forEach((el, i) => {
+      const p = seg(bt, 14 + 0.5 * i, 14 + 0.5 * i + 0.4);
+      const big = i === 1 ? punch2 : 0;
+      const x = pos[i][0] + (176 * sc) / 2 - 88, y = pos[i][1] + (119 * sc) / 2 - 60;
+      css(el, {
+        left: `${x}px`, top: `${y}px`, zIndex: i === 1 ? 5 : 1,
+        opacity: clamp(p * 3) * (i === 1 ? 1 : 1 - 0.75 * punch2),
+        transform: `translate(${big * (540 - x - 88)}px, ${big * (900 - y - 60)}px) scale(${sc * lerp(0.4, 1, outBack(p)) * (1 + 0.85 * big)})`,
+      });
+    });
+    const c = seg(bt, 16, 16.4);
+    const draw = inOut(seg(bt, 16.2, 17.6));
+    css('#chart', { opacity: clamp(c * 3) * (1 - 0.75 * punch2), transform: `translateY(${(1 - outExpo(c)) * 80}px) scale(1.9)`, clipPath: `inset(0 ${(1 - draw) * 85}% 0 0)` });
+    const out = inExpo(seg(bt, 19.55, 20));
+    if (out > 0) css('#s4', { transform: `scale(${1 + out * 0.4})`, filter: `blur(${out * 12}px)` });
+    else css('#s4', { filter: 'none' });
+  }
+
+  // ---------- features ----------
+  show('#s5', bt >= 19.6 && bt < 24.05);
+  if (bt >= 19.6 && bt < 24.05) {
+    css('#s5', { clipPath: `circle(${inOut(seg(bt, 19.6, 20)) * 1200}px at 540px 960px)` });
+    css('#s5label', { opacity: seg(bt, 20, 20.3) });
+    $$('.feat').forEach((el, i) => {
+      const p = seg(bt, 20 + i, 20 + i + 0.45);
+      const e = outExpo(p);
+      css(el, { opacity: clamp(p * 3), transform: `translateX(${(1 - e) * 160}px)` });
+      css(el.querySelector('svg'), { transform: `scale(${lerp(0.2, 1, outBack(p))}) rotate(${(1 - e) * -90}deg)` });
+    });
+    const out = inExpo(seg(bt, 23.55, 24));
+    css('#s5', { transform: `translateY(${-out * 1920}px)` });
+  }
+
+  // ---------- end card ----------
+  show('#s6', bt >= 23.55);
+  if (bt >= 23.55) {
+    const inn = inOut(seg(bt, 23.55, 24));
+    css('#s6', { transform: `translateY(${(1 - inn) * 1920}px)` });
+    css('#s6axis', { transform: `scaleX(${outExpo(seg(bt, 24, 25))})` });
+    const lg = seg(bt, 24, 24.5);
+    css('#pclogo', { opacity: clamp(lg * 2), transform: `scale(${lerp(0.7, 1, outBack(lg))})` });
+    $$('#s6hl .mask > span').forEach((el, i) => rise(el, bt, 24.5 + 0.5 * i, 0.6));
+    const bp = seg(bt, 26.25, 26.7);
+    const press = Math.max(0, 1 - Math.abs(bt - 27.5) / 0.18);
+    css('#s6btn', { opacity: clamp(bp * 3), transform: `scale(${2.8 * lerp(0.6, 1, outBack(bp)) * (1 - 0.05 * press)})` });
+    const bc = [238 + 216 * 2.8 * 0.5, 1000 + 48 * 2.8 * 0.5];
+    const [tx, ty] = path([[26.6, 860, 1500], [27.25, bc[0] + 40, bc[1] + 10]], bt);
+    touch($('#t6'), tx, ty, bt, [27.5]);
+    css('#t6', { opacity: seg(bt, 26.6, 26.8) * (1 - seg(bt, 28, 28.3)) });
+    ripple($('#rip6'), bc[0] + 40, bc[1] + 10, bt, [27.5], 220);
+    css('#s6demo', { opacity: seg(bt, 28, 28.3), transform: `translateY(${(1 - outExpo(seg(bt, 28, 28.5))) * 30}px)` });
+    css('#s6by', { opacity: seg(bt, 28.5, 28.9), transform: `translateY(${(1 - outExpo(seg(bt, 28.5, 29))) * 30}px)` });
+  }
+
+}
+
+window.render = render;
+window.ready = (async () => {
+  await document.fonts.ready;
+  await Promise.all([...document.images].map((i) => i.decode().catch(() => {})));
+  render(0);
+  return true;
+})();
+</script>
+</body>
+</html>

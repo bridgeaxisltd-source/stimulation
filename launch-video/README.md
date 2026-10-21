@@ -24,8 +24,8 @@ scratch in numpy, and the UI clicks are placed on the same beat grid as the curs
 ## Rebuild
 
 Requires Node + Playwright (Chromium), Python 3 with numpy + Pillow, and ffmpeg.
-`timeline.json` is the single source of truth for BPM, scene ranges and click/impact beats,
-and both `video.html` and `synth.py` read it.
+`timeline.json` is the single source of truth for BPM, scene ranges, click/impact beats and
+the music arrangement (`music` block). The shared renderer and synth live in `../video-kit/`.
 
 ```bash
 # 1. Serve the website build (from the bridgeaxis-website repo)
@@ -37,9 +37,9 @@ node capture2.js assets/ui                # hover crops + element rects
 python3 prep.py .                         # logo keying, button/strip crops
 
 # 3. Render
-python3 synth.py .                        # -> music.wav
-node render.js stills 4.69 8.2            # optional preview frames -> stills/
-node render.js video silent.mp4           # 900 frames -> H.264
+python3 ../video-kit/synth.py .           # -> music.wav
+node ../video-kit/render.js . stills 4.69 8.2   # optional preview frames -> stills/
+node ../video-kit/render.js . video silent.mp4  # 900 frames -> H.264
 ffmpeg -i silent.mp4 -i music.wav -map 0:v -map 1:a -c:v copy \
   -af "loudnorm=I=-14:TP=-1:LRA=7" -ar 48000 -c:a aac -b:a 256k \
   -shortest -movflags +faststart bridgeaxis-launch.mp4

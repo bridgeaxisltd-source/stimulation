@@ -1,7 +1,11 @@
-"""Synthesize the 15s launch track (128 BPM, A minor) with UI clicks on the beat.
+"""Synthesize a short house track with UI clicks on the beat.
 
-Everything is generated from scratch with numpy; event times come from
-timeline.json so the clicks line up with the cursor presses in the video.
+Usage: python3 synth.py <project-dir>   -> <project-dir>/music.wav
+
+Everything is generated from scratch with numpy. Event times (clicks, ticks,
+impacts, whooshes) and the arrangement (`music` block: chords, build, drop,
+breaks, fills, rolls, risers, final stab) come from the project's
+timeline.json, so the audio lines up with the motion on screen.
 """
 import json
 import sys
@@ -12,6 +16,7 @@ import numpy as np
 
 DIR = Path(sys.argv[1])
 TL = json.loads((DIR / "timeline.json").read_text())
+M = TL["music"]
 SR = 44100
 B = 60 / TL["bpm"]
 DUR = TL["duration"]
@@ -160,10 +165,16 @@ def ui_tick():
 
 
 # ---------------------------------------------------------------- harmony
-# One chord per bar: Am F C G | Am F C G, resolving to Am on the final hit.
-CHORDS = [(57, 60, 64), (57, 60, 65), (55, 60, 64), (55, 59, 62)] * 2
-BASS = [45, 41, 48, 43] * 2
+# One chord per bar (MIDI voicings), bass root per bar.
+CHORDS = [tuple(c) for c in M["chords"]]
+BASS = M["bass"]
 BAR = 4 * B
+DROP, END = M["drop"], M["end"]
+BREAKS = M.get("breaks", [])
+
+
+def in_break(b):
+    return any(lo <= b < hi for lo, hi in BREAKS)
 
 
 def pad_bar(notes, length, cutoff, bright=1.0):
@@ -192,24 +203,26 @@ def pluck(m, n):
 
 
 # ---------------------------------------------------------------- arrange
-groove = lambda b: 8 <= b < 30.5  # full-beat section
+groove = lambda b: DROP <= b < END  # full-beat section
 
 # pad + arp per bar, filter opening up through the intro
 padL = np.zeros_like(L)
 padR = np.zeros_like(R)
 arp = np.zeros_like(L)
 arpPan = np.zeros_like(L)
-for bar in range(8):
+for bar in range(len(CHORDS)):
     start = bar * BAR
-    cutoff = [700, 1500, 3200, 3600, 3600, 4200, 4200, 4800][bar]
-    length = BAR if bar < 7 else 2.5 * B
+    cutoff = M["cutoffs"][bar]
+    length = min(BAR, (END - bar * 4) * B)
+    if length <= 0:
+        break
     l, r = pad_bar(CHORDS[bar], length, cutoff)
     i = int(start * SR)
     padL[i : i + len(l)] += l
     padR[i : i + len(r)] += r
     tones = [CHORDS[bar][0] + 12, CHORDS[bar][1] + 12, CHORDS[bar][2] + 12, CHORDS[bar][0] + 24]
     pattern = [0, 2, 1, 3, 2, 1, 3, 2, 0, 2, 1, 3, 2, 3, 1, 2]
-    steps = 16 if bar < 7 else 10
+    steps = int(round(length / B * 4))
     for s in range(steps):
         at = start + s * B / 4
         p = pluck(tones[pattern[s]], int(0.25 * SR))
@@ -219,12 +232,12 @@ for bar in range(8):
         arp[j : j + len(p)] += p * (0.9 if s % 4 == 0 else 0.6)
         arpPan[j : j + len(p)] = -0.45 if s % 2 else 0.45
 
-# final resolving stab on Am
-stabL, stabR = pad_bar((57, 60, 64, 69), 0.25, 6500)
-st = int(30.5 * B * SR)
+# final resolving stab
+stabL, stabR = pad_bar(M["stab"], 0.25, 6500)
+st = int(END * B * SR)
 padL[st : st + len(stabL)] += stabL * 1.8
 padR[st : st + len(stabR)] += stabR * 1.8
-tailL, tailR = pad_bar((45, 57, 64), 1.6, 2200)
+tailL, tailR = pad_bar(M["tail"], 1.6, 2200)
 padL[st : st + len(tailL)] += tailL * 0.8
 padR[st : st + len(tailR)] += tailR * 0.8
 
@@ -242,7 +255,8 @@ for k in range(1, 5):
 
 # sidechain duck from the kick
 duck = np.ones_like(L)
-kicks = [b for b in np.arange(0, 32, 1.0) if (4 <= b < 8) or (groove(b) and not (19.5 <= b < 20))]
+BUILD = M["build"]
+kicks = [b for b in np.arange(0, TL["beats"], 1.0) if (BUILD[0] <= b < BUILD[1]) or (groove(b) and not in_break(b))]
 rel = int(0.22 * SR)
 curve = 1 - 0.72 * (1 - np.linspace(0, 1, rel) ** 0.6)
 for b in kicks:
@@ -263,26 +277,25 @@ sendR += arpR * duck * arp_gain * 0.5
 K, C, S, HC, HO, CR, BM = kick(), clap(), snare(), hat(), hat(True), crash(), boom()
 for b in kicks:
     add(K, b * B, 0.5)
-for b in np.arange(8, 30.5, 1.0):
-    if b % 2 == 1 and not (19.5 <= b < 20):
+for b in np.arange(DROP, END, 1.0):
+    if b % 2 == 1 and not in_break(b):
         add(C, b * B, 0.75, 0.05, send=0.35)
-for b in np.arange(4, 30.5, 0.5):
+for b in np.arange(BUILD[0], END, 0.5):
     if b % 1 == 0.5:
         add(HO if groove(b) else HC, b * B, 0.32 if groove(b) else 0.2, 0.3)
-for b in np.arange(8, 30.5, 0.25):
+for b in np.arange(DROP, END, 0.25):
     if b % 0.5:
         add(HC, b * B, 0.12, -0.3)
 # snare fills / rolls
-for b in [7, 7.5, 7.75, 23.5, 23.75, 23.875]:
+for b in M.get("fills", []):
     add(S, b * B, 0.5, send=0.2)
-for i, b in enumerate(np.arange(27, 28, 0.125)):
-    add(S, b * B, 0.12 + 0.03 * i, send=0.2)
-for i, b in enumerate(np.arange(19.5, 20, 0.125)):
-    add(S, b * B, 0.15 + 0.04 * i, send=0.2)
+for lo, hi, g0, dg in M.get("rolls", []):
+    for i, b in enumerate(np.arange(lo, hi, 0.125)):
+        add(S, b * B, g0 + dg * i, send=0.2)
 
 # bass: offbeat house bass + sub under every bar from the drop
-for b in np.arange(8, 30.5, 0.5):
-    if b % 1 == 0.5 and not (19.5 <= b < 20):
+for b in np.arange(DROP, END, 0.5):
+    if b % 1 == 0.5 and not in_break(b):
         bar = int(b // 4)
         n = int(0.24 * SR)
         tt = t_(n)
@@ -294,11 +307,10 @@ for b in np.arange(8, 30.5, 0.5):
 # impacts, crashes, risers, whooshes
 for b in TL["impacts"]:
     add(BM, b * B, 0.32)
-    if b >= 8:
+    if b >= DROP:
         add(CR, b * B, 0.3, 0.2, send=0.25)
-add(riser(2 * B), 2 * B, 0.3, send=0.2)       # into the headline section
-add(riser(4 * B), 4 * B, 0.32, send=0.2)        # build into the drop
-add(riser(2 * B), 26 * B, 0.3, send=0.2)      # build into the CTA
+for at, length, gain in M.get("risers", []):
+    add(riser(length * B), at * B, gain, send=0.2)
 for b in TL["whooshes"]:
     add(whoosh(0.5 * B), b * B, 0.4, send=0.3)
 
