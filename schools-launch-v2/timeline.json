@@ -1,0 +1,82 @@
+{
+  "bpm": 128,
+  "beats": 32,
+  "fps": 60,
+  "duration": 15,
+  "width": 1920,
+  "height": 1080,
+  "hookWords": [
+    0,
+    0.5,
+    1,
+    1.5
+  ],
+  "clicks": [
+    7.5,
+    12.5,
+    16,
+    18,
+    23,
+    30
+  ],
+  "ticks": [
+    5.75,
+    6,
+    6.25,
+    6.5,
+    12.75,
+    13,
+    13.25,
+    24.5,
+    25,
+    25.5,
+    26
+  ],
+  "impacts": [
+    4,
+    8,
+    20,
+    28,
+    30.5
+  ],
+  "whooshes": [
+    2,
+    7.75,
+    10.75,
+    13.75,
+    16.75,
+    19.5,
+    23.5,
+    27.5
+  ],
+  "modules": [
+    {
+      "id": "admissions",
+      "start": 8,
+      "label": "Admissions",
+      "line": "Let parents apply online, review applications, and enrol accepted students in one place."
+    },
+    {
+      "id": "attendance",
+      "start": 11,
+      "label": "Attendance",
+      "line": "Keep daily attendance records clear and send timely parent arrival updates."
+    },
+    {
+      "id": "analytics",
+      "start": 14,
+      "label": "Analytics",
+      "line": "Open a class to see its best students, who is improving and who has dropped."
+    },
+    {
+      "id": "sms",
+      "start": 17,
+      "label": "SMS wallet",
+      "line": "Message usage stays visible. You can see and control that usage."
+    }
+  ],
+  "motionBlur": {
+    "samples": 5,
+    "shutter": 0.5
+  }
+}

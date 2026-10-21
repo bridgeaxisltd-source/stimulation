@@ -1,0 +1,908 @@
+{
+ "viewport": {
+  "w": 1440,
+  "h": 810
+ },
+ "dpr": 3,
+ "landing": {
+  "preview": {
+   "name": "landing-preview",
+   "x": 689.59375,
+   "y": 201.046875,
+   "w": 620.40625,
+   "h": 462,
+   "numbers": [
+    {
+     "text": "642",
+     "x": 208,
+     "y": 199.390625,
+     "w": 50.296875,
+     "h": 33,
+     "font": {
+      "family": "Inter, ui-sans-serif, system-ui, sans-serif",
+      "size": 16,
+      "weight": "700",
+      "spacing": "normal",
+      "color": "rgb(18, 54, 93)",
+      "lineHeight": "24px",
+      "align": "start"
+     }
+    },
+    {
+     "text": "28",
+     "x": 352.125,
+     "y": 199.390625,
+     "w": 44.421875,
+     "h": 33,
+     "font": {
+      "family": "Inter, ui-sans-serif, system-ui, sans-serif",
+      "size": 16,
+      "weight": "700",
+      "spacing": "normal",
+      "color": "rgb(18, 54, 93)",
+      "lineHeight": "24px",
+      "align": "start"
+     }
+    },
+    {
+     "text": "12",
+     "x": 491.625,
+     "y": 208.390625,
+     "w": 85.78125,
+     "h": 24,
+     "font": {
+      "family": "Inter, ui-sans-serif, system-ui, sans-serif",
+      "size": 16,
+      "weight": "700",
+      "spacing": "normal",
+      "color": "rgb(18, 54, 93)",
+      "lineHeight": "24px",
+      "align": "start"
+     }
+    },
+    {
+     "text": "93%",
+     "x": 185,
+     "y": 306.390625,
+     "w": 181.453125,
+     "h": 48,
+     "font": {
+      "family": "Inter, ui-sans-serif, system-ui, sans-serif",
+      "size": 32,
+      "weight": "700",
+      "spacing": "normal",
+      "color": "rgb(18, 54, 93)",
+      "lineHeight": "48px",
+      "align": "start"
+     }
+    }
+   ]
+  },
+  "h1": {
+   "x": 130,
+   "y": 146,
+   "w": 507.59375,
+   "h": 213.703125,
+   "size": 73.44,
+   "lineHeight": "71.2368px",
+   "spacing": "-2.9376px"
+  },
+  "demoLink": {
+   "name": "landing-demo-link",
+   "x": 130,
+   "y": 579.9375,
+   "w": 160.8125,
+   "h": 23.53125,
+   "numbers": []
+  },
+  "demoLinkHover": {
+   "name": "landing-demo-link-hover",
+   "x": 130,
+   "y": 579.9375,
+   "w": 160.8125,
+   "h": 23.53125,
+   "numbers": []
+  },
+  "packages": [
+   {
+    "name": "package-0",
+    "x": 130,
+    "y": 1694.4375,
+    "w": 581,
+    "h": 596.609375,
+    "numbers": []
+   },
+   {
+    "name": "package-1",
+    "x": 729,
+    "y": 1694.4375,
+    "w": 581,
+    "h": 596.609375,
+    "numbers": []
+   },
+   {
+    "name": "package-2",
+    "x": 130,
+    "y": 2309.046875,
+    "w": 581,
+    "h": 577.265625,
+    "numbers": []
+   },
+   {
+    "name": "package-3",
+    "x": 729,
+    "y": 2309.046875,
+    "w": 581,
+    "h": 577.265625,
+    "numbers": []
+   }
+  ],
+  "discuss": {
+   "x": 32,
+   "y": 525.109375,
+   "w": 517,
+   "h": 20.15625
+  },
+  "discussHover": {
+   "name": "package-2-discuss-hover",
+   "x": 162,
+   "y": 2834.15625,
+   "w": 517,
+   "h": 20.15625,
+   "numbers": []
+  },
+  "rollout": [
+   {
+    "name": "rollout-0",
+    "x": 131,
+    "y": 3720.609375,
+    "w": 293.75,
+    "h": 285,
+    "numbers": []
+   },
+   {
+    "name": "rollout-1",
+    "x": 425.75,
+    "y": 3720.609375,
+    "w": 293.75,
+    "h": 285,
+    "numbers": []
+   },
+   {
+    "name": "rollout-2",
+    "x": 720.5,
+    "y": 3720.609375,
+    "w": 293.75,
+    "h": 285,
+    "numbers": []
+   },
+   {
+    "name": "rollout-3",
+    "x": 1015.25,
+    "y": 3720.609375,
+    "w": 293.75,
+    "h": 285,
+    "numbers": []
+   }
+  ],
+  "conversation": [
+   {
+    "name": "conversation-0",
+    "x": 635,
+    "y": 4592.609375,
+    "w": 328.5,
+    "h": 203.46875,
+    "numbers": []
+   },
+   {
+    "name": "conversation-1",
+    "x": 981.5,
+    "y": 4592.609375,
+    "w": 328.5,
+    "h": 203.46875,
+    "numbers": []
+   }
+  ],
+  "book": {
+   "x": 59.6875,
+   "y": 116.3125,
+   "w": 187.984375,
+   "h": 48
+  },
+  "bookHover": {
+   "name": "book-hover",
+   "x": 694.6875,
+   "y": 4707.921875,
+   "w": 187.984375,
+   "h": 48,
+   "numbers": []
+  }
+ },
+ "app": {
+  "admissions": {
+   "components": {
+    "heading": [
+     {
+      "name": "app-admissions-heading",
+      "x": 288,
+      "y": 199.390625,
+      "w": 1120,
+      "h": 86.6875,
+      "numbers": []
+     }
+    ],
+    "tabs": [
+     {
+      "name": "app-admissions-tabs",
+      "x": 288,
+      "y": 147.390625,
+      "w": 1120,
+      "h": 34,
+      "numbers": []
+     }
+    ],
+    "metric": [
+     {
+      "name": "app-admissions-metric-0",
+      "x": 288,
+      "y": 304.078125,
+      "w": 176.65625,
+      "h": 110.46875,
+      "numbers": [
+       {
+        "text": "3",
+        "x": 15,
+        "y": 57.78125,
+        "w": 146.65625,
+        "h": 37.6875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 26,
+         "weight": "900",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "37.7px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-admissions-metric-1",
+      "x": 476.65625,
+      "y": 304.078125,
+      "w": 176.671875,
+      "h": 110.46875,
+      "numbers": [
+       {
+        "text": "2",
+        "x": 15,
+        "y": 40.390625,
+        "w": 146.671875,
+        "h": 37.6875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 26,
+         "weight": "900",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "37.7px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-admissions-metric-2",
+      "x": 665.328125,
+      "y": 304.078125,
+      "w": 176.671875,
+      "h": 110.46875,
+      "numbers": []
+     },
+     {
+      "name": "app-admissions-metric-3",
+      "x": 854,
+      "y": 304.078125,
+      "w": 176.65625,
+      "h": 110.46875,
+      "numbers": [
+       {
+        "text": "1",
+        "x": 15,
+        "y": 40.390625,
+        "w": 146.65625,
+        "h": 37.6875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 26,
+         "weight": "900",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "37.7px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-admissions-metric-4",
+      "x": 1042.65625,
+      "y": 304.078125,
+      "w": 176.671875,
+      "h": 110.46875,
+      "numbers": [
+       {
+        "text": "0",
+        "x": 15,
+        "y": 57.78125,
+        "w": 146.671875,
+        "h": 37.6875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 26,
+         "weight": "900",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "37.7px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-admissions-metric-5",
+      "x": 1231.328125,
+      "y": 304.078125,
+      "w": 176.671875,
+      "h": 110.46875,
+      "numbers": [
+       {
+        "text": "0",
+        "x": 15,
+        "y": 57.78125,
+        "w": 146.671875,
+        "h": 37.6875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 26,
+         "weight": "900",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "37.7px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-admissions-metric-6",
+      "x": 288,
+      "y": 426.546875,
+      "w": 176.65625,
+      "h": 93.078125,
+      "numbers": [
+       {
+        "text": "0",
+        "x": 15,
+        "y": 40.390625,
+        "w": 146.65625,
+        "h": 37.6875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 26,
+         "weight": "900",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "37.7px",
+         "align": "start"
+        }
+       }
+      ]
+     }
+    ]
+   },
+   "sidebar": {
+    "name": "app-admissions-sidebar",
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 810,
+    "numbers": []
+   },
+   "topbar": {
+    "name": "app-admissions-topbar",
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 84,
+    "numbers": []
+   }
+  },
+  "attendance": {
+   "components": {
+    "metric": [
+     {
+      "name": "app-attendance-metric-0",
+      "x": 288,
+      "y": 112,
+      "w": 269.5,
+      "h": 112,
+      "numbers": [
+       {
+        "text": "3",
+        "x": 15,
+        "y": 51,
+        "w": 132.515625,
+        "h": 29.6875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 27,
+         "weight": "700",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "29.7px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-attendance-metric-1",
+      "x": 571.5,
+      "y": 112,
+      "w": 269.5,
+      "h": 112,
+      "numbers": [
+       {
+        "text": "3",
+        "x": 15,
+        "y": 51,
+        "w": 64.109375,
+        "h": 29.6875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 27,
+         "weight": "700",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "29.7px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-attendance-metric-2",
+      "x": 855,
+      "y": 112,
+      "w": 269.5,
+      "h": 112,
+      "numbers": [
+       {
+        "text": "0",
+        "x": 15,
+        "y": 51,
+        "w": 84.90625,
+        "h": 29.6875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 27,
+         "weight": "700",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "29.7px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-attendance-metric-3",
+      "x": 1138.5,
+      "y": 112,
+      "w": 269.5,
+      "h": 112,
+      "numbers": [
+       {
+        "text": "0",
+        "x": 15,
+        "y": 51,
+        "w": 122.609375,
+        "h": 29.6875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 27,
+         "weight": "700",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "29.7px",
+         "align": "start"
+        }
+       }
+      ]
+     }
+    ],
+    "controls": [
+     {
+      "name": "app-attendance-controls",
+      "x": 288,
+      "y": 240,
+      "w": 1120,
+      "h": 114,
+      "numbers": []
+     }
+    ],
+    "live": [
+     {
+      "name": "app-attendance-live",
+      "x": 288,
+      "y": 370,
+      "w": 1120,
+      "h": 311,
+      "numbers": []
+     }
+    ],
+    "row": [
+     {
+      "name": "app-attendance-row-0",
+      "x": 314,
+      "y": 508.5,
+      "w": 1068,
+      "h": 49,
+      "numbers": []
+     },
+     {
+      "name": "app-attendance-row-1",
+      "x": 314,
+      "y": 557.5,
+      "w": 1068,
+      "h": 49,
+      "numbers": []
+     },
+     {
+      "name": "app-attendance-row-2",
+      "x": 314,
+      "y": 606.5,
+      "w": 1068,
+      "h": 48.5,
+      "numbers": []
+     }
+    ]
+   },
+   "sidebar": {
+    "name": "app-attendance-sidebar",
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 810,
+    "numbers": []
+   },
+   "topbar": {
+    "name": "app-attendance-topbar",
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 84,
+    "numbers": []
+   },
+   "button": {
+    "name": "app-attendance-button",
+    "x": 585,
+    "y": 287,
+    "w": 798,
+    "h": 42,
+    "numbers": []
+   },
+   "buttonHover": {
+    "name": "app-attendance-button-hover",
+    "x": 585,
+    "y": 287,
+    "w": 798,
+    "h": 42,
+    "numbers": []
+   }
+  },
+  "analytics": {
+   "components": {
+    "heading": [
+     {
+      "name": "app-analytics-heading",
+      "x": 288,
+      "y": 112,
+      "w": 1120,
+      "h": 103.671875,
+      "numbers": []
+     }
+    ],
+    "card": [
+     {
+      "name": "app-analytics-card-0",
+      "x": 288,
+      "y": 235.671875,
+      "w": 269.5,
+      "h": 179.609375,
+      "numbers": [
+       {
+        "text": "87.0%",
+        "x": 19,
+        "y": 79.03125,
+        "w": 231.5,
+        "h": 30.796875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 28,
+         "weight": "800",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "30.8px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-analytics-card-1",
+      "x": 571.5,
+      "y": 235.671875,
+      "w": 269.5,
+      "h": 179.609375,
+      "numbers": [
+       {
+        "text": "47.7%",
+        "x": 19,
+        "y": 79.03125,
+        "w": 231.5,
+        "h": 30.796875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 28,
+         "weight": "800",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "30.8px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-analytics-card-2",
+      "x": 855,
+      "y": 235.671875,
+      "w": 269.5,
+      "h": 179.609375,
+      "numbers": [
+       {
+        "text": "78.2%",
+        "x": 19,
+        "y": 79.03125,
+        "w": 231.5,
+        "h": 30.796875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 28,
+         "weight": "800",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "30.8px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-analytics-card-3",
+      "x": 1138.5,
+      "y": 235.671875,
+      "w": 269.5,
+      "h": 179.609375,
+      "numbers": [
+       {
+        "text": "79.8%",
+        "x": 19,
+        "y": 79.03125,
+        "w": 231.5,
+        "h": 30.796875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 28,
+         "weight": "800",
+         "spacing": "normal",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "30.8px",
+         "align": "start"
+        }
+       }
+      ]
+     }
+    ],
+    "panel": [
+     {
+      "name": "app-analytics-panel",
+      "x": 288,
+      "y": 435.28125,
+      "w": 1120,
+      "h": 149.78125,
+      "numbers": []
+     }
+    ]
+   },
+   "sidebar": {
+    "name": "app-analytics-sidebar",
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 810,
+    "numbers": []
+   },
+   "topbar": {
+    "name": "app-analytics-topbar",
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 84,
+    "numbers": []
+   },
+   "cardHover": {
+    "name": "app-analytics-card-1-hover",
+    "x": 571.5,
+    "y": 235.671875,
+    "w": 269.5,
+    "h": 179.609375,
+    "numbers": []
+   }
+  },
+  "sms": {
+   "components": {
+    "heading": [
+     {
+      "name": "app-sms-heading",
+      "x": 309,
+      "y": 133,
+      "w": 1078,
+      "h": 44,
+      "numbers": []
+     }
+    ],
+    "note": [
+     {
+      "name": "app-sms-note",
+      "x": 309,
+      "y": 194,
+      "w": 1078,
+      "h": 17.390625,
+      "numbers": []
+     }
+    ],
+    "metric": [
+     {
+      "name": "app-sms-metric-0",
+      "x": 309,
+      "y": 229.390625,
+      "w": 260.5,
+      "h": 108,
+      "numbers": [
+       {
+        "text": "₦15,320",
+        "x": 16,
+        "y": 48.390625,
+        "w": 228.5,
+        "h": 34.796875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 24,
+         "weight": "700",
+         "spacing": "-0.96px",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "34.8px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-sms-metric-1",
+      "x": 581.5,
+      "y": 229.390625,
+      "w": 260.5,
+      "h": 108,
+      "numbers": [
+       {
+        "text": "1532",
+        "x": 16,
+        "y": 48.390625,
+        "w": 228.5,
+        "h": 34.796875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 24,
+         "weight": "700",
+         "spacing": "-0.96px",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "34.8px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-sms-metric-2",
+      "x": 854,
+      "y": 229.390625,
+      "w": 260.5,
+      "h": 108,
+      "numbers": [
+       {
+        "text": "₦10",
+        "x": 16,
+        "y": 48.390625,
+        "w": 228.5,
+        "h": 34.796875,
+        "font": {
+         "family": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+         "size": 24,
+         "weight": "700",
+         "spacing": "-0.96px",
+         "color": "rgb(9, 35, 75)",
+         "lineHeight": "34.8px",
+         "align": "start"
+        }
+       }
+      ]
+     },
+     {
+      "name": "app-sms-metric-3",
+      "x": 1126.5,
+      "y": 229.390625,
+      "w": 260.5,
+      "h": 108,
+      "numbers": []
+     }
+    ]
+   },
+   "sidebar": {
+    "name": "app-sms-sidebar",
+    "x": 0,
+    "y": 0,
+    "w": 256,
+    "h": 810,
+    "numbers": []
+   },
+   "topbar": {
+    "name": "app-sms-topbar",
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 84,
+    "numbers": []
+   },
+   "button": {
+    "name": "app-sms-button",
+    "x": 1231.09375,
+    "y": 133,
+    "w": 155.90625,
+    "h": 44,
+    "numbers": []
+   },
+   "buttonHover": {
+    "name": "app-sms-button-hover",
+    "x": 1231.09375,
+    "y": 133,
+    "w": 155.90625,
+    "h": 44,
+    "numbers": []
+   }
+  },
+  "parents": {
+   "card": {
+    "name": "app-parents-card",
+    "x": 496,
+    "y": 40,
+    "w": 448,
+    "h": 608,
+    "numbers": []
+   }
+  }
+ }
+}

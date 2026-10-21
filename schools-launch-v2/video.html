@@ -1,0 +1,689 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BridgeAxis OS Reel</title>
+<style>
+  /* Georgia is the site's headline face; Gelasio is its metric-compatible open-source twin. */
+  @font-face { font-family: "Gelasio"; src: url(assets/gelasio-latin-400-normal.woff2) format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Gelasio"; src: url(assets/gelasio-latin-700-normal.woff2) format("woff2"); font-weight: 700; }
+  @font-face { font-family: "Inter"; src: url(assets/inter-latin-wght-normal.woff2) format("woff2"); font-weight: 100 900; }
+  :root {
+    --navy: #12365d; --ink: #04234f; --teal: #009fa3; --teal-dark: #008e94; --mint: #4fd1cf;
+    --muted: #52657a; --paper: #edf8fb; --app-paper: #f4f7fa; --line: #d7e3ec;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+  body { font-family: "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
+  img { display: block; }
+  #stage { position: absolute; inset: 0; overflow: hidden; background: #fff; transform-origin: 50% 50%; }
+  .scene { position: absolute; inset: 0; overflow: hidden; display: none; z-index: 0; isolation: isolate; }
+  .abs { position: absolute; }
+  .layer { position: absolute; transform-origin: 50% 50%; will-change: transform; }
+  .serif { font-family: "Gelasio", Georgia, serif; font-weight: 700; letter-spacing: -.04em; color: var(--navy); }
+  .mask { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .16em; margin-bottom: -.16em; }
+  .mask > span { display: inline-block; }
+  .eyebrow { font-size: 22px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--teal-dark); }
+  .num { position: absolute; white-space: nowrap; }
+  .cursor { position: absolute; left: 0; top: 0; width: 34px; height: 46px; transform-origin: 3px 3px; z-index: 50; filter: drop-shadow(0 4px 6px rgb(0 0 0 / 30%)); }
+  .ripple { position: absolute; border-radius: 50%; border: 3px solid var(--teal); z-index: 49; pointer-events: none; }
+  .card-shadow { filter: drop-shadow(0 24px 40px rgb(4 35 79 / 18%)) drop-shadow(0 4px 10px rgb(4 35 79 / 8%)); }
+  .white-plate { background: #fff; border-radius: 14px; border: 1px solid var(--line); }
+
+  /* ---------------- hook ---------------- */
+  #s1 { background: radial-gradient(120% 90% at 70% 40%, #0b3a6e 0%, var(--ink) 60%, #021732 100%); perspective: 1700px; }
+  #hookWords { left: 110px; top: 772px; height: 190px; width: 1200px; font-size: 168px; line-height: 1; color: #fff; }
+  #hookWords .mask { position: absolute; left: 0; top: 0; }
+  #hookIndex { left: 116px; top: 730px; font-size: 20px; font-weight: 800; letter-spacing: .2em; color: var(--mint); }
+  #hookStage { left: 0; top: 0; width: 1920px; height: 1080px; transform-style: preserve-3d; }
+  #wipe1 { left: 960px; top: 540px; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #fff; }
+  #oneplace { left: 0; width: 1920px; top: 770px; text-align: center; font-size: 92px; line-height: 1.08; }
+  #logo { left: 0; top: 0; width: 1920px; height: 1080px; display: flex; align-items: center; justify-content: center; gap: 36px; transform-origin: 50% 50%; }
+  #logo svg { width: 300px; height: 282px; overflow: visible; }
+  #wordmark { font-size: 132px; letter-spacing: -.02em; white-space: nowrap; }
+  #wordmark span, .wm span { color: var(--teal); }
+  #ihl { left: 269px; top: 330px; font-size: 200px; line-height: .97; white-space: nowrap; transform-origin: 0 0; }
+
+  /* ---------------- landing ---------------- */
+  #s2 { background: #fff; perspective: 2200px; }
+  #landCam { left: 0; top: 0; width: 1920px; height: 1080px; transform-style: preserve-3d; transform-origin: 50% 60%; }
+  #land { left: 0; top: 0; width: 1440px; height: 810px; transform: scale(1.333333); transform-origin: 0 0; transform-style: preserve-3d; }
+
+  /* ---------------- app ---------------- */
+  #s3 { background: linear-gradient(180deg, #fff 0%, var(--paper) 100%); perspective: 2600px; perspective-origin: 1200px 540px; }
+  #appWrap { left: 540px; top: 150px; width: 1440px; height: 810px; transform-origin: 0 50%; transform-style: preserve-3d; }
+  #appPaper { left: 0; top: 0; width: 1440px; height: 810px; background: var(--app-paper); border-radius: 18px; box-shadow: 0 60px 120px rgb(4 35 79 / 22%), 0 0 0 1px rgb(4 35 79 / 8%); }
+  #appClip { left: 0; top: 0; width: 1440px; height: 810px; border-radius: 18px; overflow: hidden; }
+  #modIndex { left: 96px; top: 300px; font-size: 20px; font-weight: 800; letter-spacing: .2em; color: var(--teal-dark); }
+  #modName { left: 90px; top: 336px; width: 450px; height: 100px; font-size: 76px; line-height: 1.15; white-space: nowrap; }
+  #modName .mask, #modLine .mask { position: absolute; left: 0; top: 0; }
+  #modLine { left: 96px; top: 446px; width: 400px; height: 150px; font-size: 24px; line-height: 1.5; color: var(--muted); }
+  #modLine .mask { white-space: normal; width: 400px; }
+  #modTrack { left: 96px; top: 620px; display: flex; gap: 10px; }
+  #modTrack i { width: 54px; height: 4px; border-radius: 2px; background: var(--line); }
+  #modEyebrow { left: 96px; top: 150px; }
+
+  /* ---------------- packages / rollout / cta ---------------- */
+  #s4 { background: var(--paper); perspective: 2000px; }
+  #s5 { background: #fff; perspective: 2000px; }
+  #s6 { background: #fff; perspective: 2000px; }
+  .heading84 { font-size: 84px; line-height: 1.05; white-space: nowrap; }
+  #ctaHl { left: 110px; top: 250px; font-size: 140px; line-height: 1.02; }
+  #ctaSub { left: 116px; top: 600px; width: 820px; font-size: 30px; line-height: 1.55; color: var(--muted); }
+  #convo { left: 1200px; top: 330px; width: 328px; height: 203px; transform-origin: 0 0; }
+  #end { position: absolute; inset: 0; background: var(--paper); z-index: 60; display: none; }
+  #endlogo { left: 0; top: 290px; width: 1920px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+  #endlogo svg { width: 200px; height: 188px; overflow: visible; }
+  #endlogo .wm { font-size: 108px; letter-spacing: -.02em; }
+  #endtag { left: 0; width: 1920px; top: 560px; text-align: center; font-family: "Gelasio", serif; font-size: 52px; color: var(--navy); }
+  #endurl { left: 0; width: 1920px; top: 682px; text-align: center; font-size: 48px; font-weight: 800; color: var(--teal-dark); }
+  #endmail { left: 0; width: 1920px; top: 764px; text-align: center; font-size: 28px; font-weight: 600; color: var(--muted); }
+  #endbar { left: 0; top: 0; width: 1920px; height: 10px; background: var(--teal); transform-origin: 0 50%; }
+
+  #flash { position: absolute; inset: 0; background: #fff; z-index: 90; opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="lg" gradientUnits="userSpaceOnUse" x1="2" y1="188.5" x2="197" y2="188.5"><stop offset="0" stop-color="#123f6d"/><stop offset=".45" stop-color="#07345f"/><stop offset="1" stop-color="#022c50"/></linearGradient>
+    <linearGradient id="rg" gradientUnits="userSpaceOnUse" x1="214" y1="188.5" x2="395" y2="188.5"><stop offset="0" stop-color="#00949e"/><stop offset=".58" stop-color="#03a5aa"/><stop offset="1" stop-color="#18b6b6"/></linearGradient>
+  </defs>
+</svg>
+<template id="markTpl">
+  <!-- the four pieces of the real brand-symbol.svg -->
+  <svg viewBox="0 0 401 377">
+    <path fill="url(#lg)" d="M197 28 L157 79 L157 124 L81 220 L121 208 L156 164 L156 201 C170 200,184 199,197 198 Z"/>
+    <path fill="url(#rg)" d="M214 28 L254 78 L254 124 L331 220 L290 208 L255 164 L254 201 C240 200,226 199,214 198 Z"/>
+    <path fill="url(#lg)" d="M197 213 C183 213,170 214,156 216 C103 222,49 240,2 264 C21 257,43 251,66 247 L67 249 L59 257 L59 298 L104 240 C121 237,140 235,157 233 L157 325 L197 352 Z"/>
+    <path fill="url(#rg)" d="M214 213 C230 213,246 214,273 218 C312 224,354 239,395 261 C383 257,366 251,345 247 L344 248 L353 258 L352 298 L308 240 C288 237,270 235,255 233 L254 326 L214 352 Z"/>
+  </svg>
+</template>
+
+<div id="stage">
+  <div class="scene" id="s1">
+    <div class="abs" id="wipe1"></div>
+    <div class="abs" id="hookStage"></div>
+    <p class="abs" id="hookIndex">BRIDGEAXIS OS</p>
+    <div class="abs serif" id="hookWords" style="color:#fff">
+      <span class="mask"><span>Admissions.</span></span>
+      <span class="mask"><span>Attendance.</span></span>
+      <span class="mask"><span>Analytics.</span></span>
+      <span class="mask"><span>Parents.</span></span>
+    </div>
+    <div class="abs serif" id="oneplace">
+      <div><span class="mask"><span>Everything your school needs,</span></span></div>
+      <div><span class="mask"><span style="color:var(--teal-dark)">in one place.</span></span></div>
+    </div>
+    <div class="abs" id="logo"><div id="logoMark"></div><div class="serif" id="wordmark">BridgeAxis <span>OS</span></div></div>
+    <div class="abs serif" id="ihl">
+      <div><span class="mask"><span>A calmer way</span></span></div>
+      <div><span class="mask"><span>to run your</span></span></div>
+      <div><span class="mask"><span>school.</span></span></div>
+    </div>
+  </div>
+
+  <div class="scene" id="s2">
+    <div class="abs" id="landCam"><div class="abs" id="land"></div></div>
+  </div>
+
+  <div class="scene" id="s3">
+    <p class="abs eyebrow" id="modEyebrow">Everything your school needs, in one place</p>
+    <p class="abs" id="modIndex"></p>
+    <div class="abs serif" id="modName"></div>
+    <div class="abs" id="modLine"></div>
+    <div class="abs" id="modTrack"><i></i><i></i><i></i><i></i></div>
+    <div class="abs" id="appWrap">
+      <div class="abs" id="appPaper"></div>
+      <div class="abs" id="appClip"></div>
+    </div>
+  </div>
+
+  <div class="scene" id="s4">
+    <p class="abs eyebrow" style="left:110px;top:110px" id="pkgEyebrow">Packages</p>
+    <div class="abs serif heading84" style="left:104px;top:150px" id="pkgHl"><span class="mask"><span>Start with what your school needs now.</span></span></div>
+    <div class="abs" id="pkgStage" style="left:0;top:0;width:1920px;height:1080px;transform-style:preserve-3d"></div>
+  </div>
+
+  <div class="scene" id="s5">
+    <p class="abs eyebrow" style="left:110px;top:110px" id="rollEyebrow">A calm rollout</p>
+    <div class="abs serif heading84" style="left:104px;top:150px" id="rollHl"><span class="mask"><span>Move at a pace your team can manage.</span></span></div>
+    <svg class="abs" id="rollLine" width="1920" height="1080" style="left:0;top:0;overflow:visible"><path id="rollPath" fill="none" stroke="#009fa3" stroke-width="5" stroke-linecap="round" stroke-dasharray="6 14"/></svg>
+    <div class="abs" id="rollStage" style="left:0;top:0;width:1920px;height:1080px;transform-style:preserve-3d"></div>
+    <p class="abs" id="rollSub" style="left:110px;top:900px;font-size:30px;color:var(--muted)">There is no pressure to switch every process at once.</p>
+  </div>
+
+  <div class="scene" id="s6">
+    <div class="abs serif" id="ctaHl">
+      <div><span class="mask"><span>Let's talk about</span></span></div>
+      <div><span class="mask"><span>your school.</span></span></div>
+    </div>
+    <p class="abs" id="ctaSub">Every school is different. Have a short, no-obligation conversation with our team about how BridgeAxis OS can support your own goals.</p>
+    <div class="abs" id="convo"></div>
+    <div id="end">
+      <div class="abs" id="endbar"></div>
+      <div class="abs" id="endlogo"><div id="endMark"></div><div class="serif wm">BridgeAxis <span>OS</span></div></div>
+      <div class="abs" id="endtag">A calmer way to run your school.</div>
+      <div class="abs" id="endurl">schools.bridgeaxisltd.com</div>
+      <div class="abs" id="endmail">hello@bridgeaxisltd.com</div>
+    </div>
+  </div>
+
+  <div id="flash"></div>
+</div>
+
+<script>
+const TL = __TIMELINE__;
+const META = __META__;
+const B = 60 / TL.bpm;
+const $ = (s, root = document) => root.querySelector(s);
+const $$ = (s, root = document) => [...root.querySelectorAll(s)];
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (bt, b0, b1) => clamp((bt - b0) / (b1 - b0));
+const outExpo = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
+const inExpo = (t) => (t <= 0 ? 0 : Math.pow(2, 10 * t - 10));
+const inOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const outBack = (t) => { const c = 1.6; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+const outCubic = (t) => 1 - Math.pow(1 - t, 3);
+const show = (el, on) => { el.style.display = on ? 'block' : 'none'; };
+const css = (el, o) => Object.assign(el.style, o);
+
+// One transform helper for every layer: x/y/z in px, r* in degrees, s scale.
+function T(el, { x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0, s = 1, o = 1, blur = 0 } = {}) {
+  el.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${s})`;
+  el.style.opacity = o;
+  el.style.filter = blur > 0.05 ? `blur(${blur}px)` : '';
+}
+function rise(el, bt, b, len = 0.5, out = null) {
+  const p = outExpo(seg(bt, b, b + len));
+  const q = out == null ? 0 : inExpo(seg(bt, out - 0.22, out));
+  el.style.transform = `translateY(${(1 - p) * 150 - q * 150}%) skewY(${(1 - p) * 5}deg)`;
+  // waiting or finished lines are hidden outright: on a long line the skew can lift one end above the mask
+  el.style.visibility = p <= 0 || q >= 1 ? 'hidden' : 'visible';
+}
+
+// ---------------------------------------------------------------- builders
+function img(parent, src, x, y, w, h, cls = 'layer') {
+  const im = document.createElement('img');
+  im.src = `assets/${src}.png`;
+  im.className = cls;
+  css(im, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+  parent.appendChild(im);
+  return im;
+}
+function box(parent, x, y, w, h, cls = 'layer') {
+  const d = document.createElement('div');
+  d.className = cls;
+  css(d, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+  parent.appendChild(d);
+  return d;
+}
+// A captured component: its PNG plus live number overlays in the UI's own type.
+function component(parent, c, src, x = c.x, y = c.y) {
+  const wrap = box(parent, x, y, c.w, c.h);
+  img(wrap, src, 0, 0, c.w, c.h, 'abs');
+  wrap.nums = (c.numbers || []).map((n) => {
+    const d = document.createElement('div');
+    d.className = 'num';
+    css(d, {
+      left: `${n.x}px`, top: `${n.y}px`, minWidth: `${n.w}px`, height: `${n.h}px`,
+      fontFamily: n.font.family, fontSize: `${n.font.size}px`, fontWeight: n.font.weight,
+      letterSpacing: n.font.spacing, color: n.font.color, lineHeight: n.font.lineHeight, textAlign: n.font.align,
+    });
+    wrap.appendChild(d);
+    const m = n.text.match(/^([^\d]*)([\d,]*\.?\d+)(.*)$/);
+    d.fmt = { pre: m[1], val: parseFloat(m[2].replace(/,/g, '')), dec: (m[2].split('.')[1] || '').length, comma: m[2].includes(','), suf: m[3] };
+    d.textContent = n.text;
+    return d;
+  });
+  return wrap;
+}
+function setCount(wrap, p) {
+  for (const d of wrap.nums) {
+    const f = d.fmt;
+    const v = f.val * outCubic(clamp(p));
+    let s = v.toFixed(f.dec);
+    if (f.comma) s = Number(s).toLocaleString('en-US', { minimumFractionDigits: f.dec, maximumFractionDigits: f.dec });
+    d.textContent = f.pre + s + f.suf;
+  }
+}
+function mark(parent) {
+  const svg = $('#markTpl').content.firstElementChild.cloneNode(true);
+  parent.appendChild(svg);
+  return svg;
+}
+function cursor(parent, scale = 1) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const s = document.createElementNS(ns, 'svg');
+  s.setAttribute('viewBox', '0 0 34 46');
+  s.setAttribute('class', 'cursor');
+  s.innerHTML = '<path d="M3 3v34l9-8 6 14 7-3-6-13h12L3 3Z" fill="#fff" stroke="#0b1b33" stroke-width="2.4" stroke-linejoin="round"/>';
+  css(s, { width: `${34 * scale}px`, height: `${46 * scale}px` });
+  parent.appendChild(s);
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  parent.appendChild(r);
+  return { el: s, ripple: r };
+}
+function path(keys, bt) {
+  if (bt <= keys[0][0]) return keys[0].slice(1);
+  for (let i = 1; i < keys.length; i++) {
+    if (bt <= keys[i][0]) {
+      const t = inOut(seg(bt, keys[i - 1][0], keys[i][0]));
+      return [lerp(keys[i - 1][1], keys[i][1], t), lerp(keys[i - 1][2], keys[i][2], t)];
+    }
+  }
+  return keys[keys.length - 1].slice(1);
+}
+function drive(cur, keys, clicks, bt, visible, rippleSize = 60) {
+  const [x, y] = path(keys, bt);
+  const press = Math.max(0, ...clicks.map((c) => 1 - Math.abs(bt - c) / 0.16));
+  cur.el.style.transform = `translate(${x}px, ${y}px) scale(${1 - 0.22 * press})`;
+  cur.el.style.opacity = visible;
+  const c = clicks.filter((k) => bt >= k).pop();
+  const p = c == null ? 1 : seg(bt, c, c + 0.6);
+  if (p <= 0 || p >= 1) { cur.ripple.style.opacity = 0; return; }
+  const r = outCubic(p) * rippleSize;
+  css(cur.ripple, { left: `${x - r}px`, top: `${y - r}px`, width: `${2 * r}px`, height: `${2 * r}px`, opacity: 1 - p });
+}
+const center = (r) => [r.x + r.w / 2, r.y + r.h / 2];
+
+// ---------------------------------------------------------------- scene setup
+const S = {};
+function build() {
+  const A = META.app, Lm = META.landing;
+
+  // hook components (real UI, each with its numbers set to the real values)
+  const hs = $('#hookStage');
+  S.hook = [
+    [A.admissions.components.metric[1], 'app-admissions-metric-1', 3.3],
+    [A.attendance.components.live[0], 'app-attendance-live', 1.3],
+    [A.analytics.components.card[1], 'app-analytics-card-1', 2.6],
+    [A.parents.card, 'app-parents-card', 1.12],
+  ].map(([c, src, s], i) => {
+    const w = component(hs, c, src, 1240 - c.w / 2, 470 - c.h / 2);
+    w.classList.add('card-shadow');
+    w.baseScale = s;
+    if (i === 1) {
+      w.rows = A.attendance.components.row.map((r, k) => img(w, `app-attendance-row-${k}`, r.x - c.x, r.y - c.y, r.w, r.h, 'abs'));
+    }
+    return w;
+  });
+
+  S.logoMark = mark($('#logoMark'));
+  S.endMark = mark($('#endMark'));
+
+  // landing: backdrop + the hero preview as a liftable layer with live numbers
+  const land = $('#land');
+  img(land, 'landing-bg', 0, 0, 1440, 810, 'abs');
+  S.preview = component(land, Lm.preview, 'landing-preview');
+  S.preview.style.borderRadius = '16px';
+  const dh = Lm.demoLinkHover;
+  S.demoHover = img(land, 'landing-demo-link-hover', dh.x, dh.y, dh.w, dh.h);
+  S.demoHover.style.background = '#fff';
+  S.landCursor = cursor(land, 1.05);
+
+  // app: paper, sidebar + topbar per module (crossfaded), components per module
+  const clip = $('#appClip');
+  S.app = {};
+  for (const m of TL.modules) {
+    const a = A[m.id];
+    const mod = (S.app[m.id] = { all: [] });
+    mod.sidebar = img(clip, `app-${m.id}-sidebar`, a.sidebar.x, a.sidebar.y, a.sidebar.w, a.sidebar.h);
+    mod.topbar = img(clip, `app-${m.id}-topbar`, a.topbar.x, a.topbar.y, a.topbar.w, a.topbar.h);
+    mod.parts = {};
+    for (const [key, list] of Object.entries(a.components)) {
+      mod.parts[key] = list.map((c, i) => {
+        const w = component(clip, c, `app-${m.id}-${key}${list.length > 1 || ['metric', 'card', 'row'].includes(key) ? '-' + i : ''}`);
+        if (key !== 'row') mod.all.push(w);  // rows only appear after the refresh click
+        return w;
+      });
+    }
+    if (a.button) {
+      mod.buttonHover = img(clip, `app-${m.id}-button-hover`, a.buttonHover.x, a.buttonHover.y, a.buttonHover.w, a.buttonHover.h);
+      mod.buttonHover.style.background = '#fff';
+    }
+  }
+  S.app.analytics.cardHover = img(clip, 'app-analytics-card-1-hover', A.analytics.cardHover.x, A.analytics.cardHover.y, A.analytics.cardHover.w, A.analytics.cardHover.h);
+  S.appCursor = cursor(clip, 1.25);
+
+  // module copy
+  for (const m of TL.modules) {
+    $('#modName').insertAdjacentHTML('beforeend', `<span class="mask"><span>${m.label}.</span></span>`);
+    $('#modLine').insertAdjacentHTML('beforeend', `<span class="mask"><span>${m.line}</span></span>`);
+  }
+
+  // packages
+  const ps = $('#pkgStage');
+  S.pkgScale = 400 / 581;
+  S.pkgs = Lm.packages.map((p, i) => {
+    const w = box(ps, 0, 0, p.w, p.h);
+    w.classList.add('card-shadow');
+    w.style.transformOrigin = '50% 100%';
+    img(w, `package-${i}`, 0, 0, p.w, p.h, 'abs');
+    return w;
+  });
+  const d = Lm.discussHover, c2 = Lm.packages[2];
+  S.discussHover = img(S.pkgs[2], 'package-2-discuss-hover', d.x - c2.x, d.y - c2.y, d.w, d.h, 'abs');
+  S.discussHover.style.background = '#fff';
+  S.pkgCursor = cursor(S.pkgs[2], 1.45);
+
+  // rollout steps
+  const rs = $('#rollStage');
+  S.steps = Lm.rollout.map((r, i) => {
+    const w = box(rs, 0, 0, r.w, r.h, 'layer white-plate card-shadow');
+    w.style.overflow = 'hidden';
+    img(w, `rollout-${i}`, 0, 0, r.w, r.h, 'abs');
+    return w;
+  });
+
+  // conversation card on a white plate, with the real button hover
+  const cv = $('#convo'), c0 = Lm.conversation[0], bh = Lm.bookHover;
+  cv.classList.add('white-plate', 'card-shadow');
+  img(cv, 'conversation-0', 0, 0, c0.w, c0.h, 'abs');
+  S.bookHover = img(cv, 'book-hover', bh.x - c0.x, bh.y - c0.y, bh.w, bh.h, 'abs');
+  S.bookHover.style.background = '#fff';
+  S.ctaCursor = cursor(cv, 0.62);
+}
+
+// ---------------------------------------------------------------- scenes
+function sceneHook(bt) {
+  const words = $$('#hookWords .mask > span');
+  TL.hookWords.forEach((b, i) => rise(words[i], bt, b, 0.3, i < 3 ? TL.hookWords[i + 1] : 1.95));
+  css($('#hookIndex'), { opacity: seg(bt, 0, 0.2) * (1 - seg(bt, 1.85, 2)) });
+
+  // each word brings its real component in from depth, then hands over
+  S.hook.forEach((w, i) => {
+    const b0 = TL.hookWords[i], b1 = i < 3 ? TL.hookWords[i + 1] : 2;
+    const pin = outExpo(seg(bt, b0 - 0.05, b0 + 0.3)), pout = inExpo(seg(bt, b1 - 0.12, b1 + 0.08));
+    const drift = seg(bt, b0, b1 + 0.1);
+    let st = { x: (1 - pin) * 380 - pout * 320, z: (1 - pin) * -500 - pout * 400, ry: lerp(-38, -14, pin) - drift * 6 - pout * 20,
+      rx: 6, s: w.baseScale * (1 + 0.05 * drift), o: clamp(pin * 2) * (1 - pout), blur: (1 - pin) * 8 + pout * 10 };
+    // after the white wipe: all four return as a small cluster, then become the mark
+    const cl = seg(bt, 2.05, 2.5), into = inExpo(seg(bt, 3.0, 3.4));
+    if (bt >= 2.05) {
+      const slots = [[-260, -150], [260, -150], [-260, 140], [260, 140]];
+      const e = outExpo(cl);
+      const tgt = S.pieceTargets[i];
+      const cx = 960 + slots[i][0], cy = 420 + slots[i][1];
+      const x = lerp(cx, tgt[0], into), y = lerp(cy, tgt[1], into);
+      st = { x: x - 1240 + (1 - e) * slots[i][0] * 2.2, y: y - 470 + (1 - e) * slots[i][1] * 2.2,
+        z: (1 - e) * 300, ry: (1 - e) * -30, rx: 0, s: w.baseScale * lerp(0.32, 0.03, into), o: clamp(e * 2) * (1 - seg(bt, 3.25, 3.4)), blur: into * 6 };
+    }
+    T(w, st);
+    if (w.rows) w.rows.forEach((r, k) => (r.style.opacity = bt >= 2.05 ? 1 : seg(bt, b0 + 0.12 + k * 0.06, b0 + 0.2 + k * 0.06)));
+  });
+
+  // white wipe, "Everything your school needs, in one place."
+  const wp = inOut(seg(bt, 1.85, 2.15));
+  css($('#wipe1'), { transform: `scale(${wp * 260})`, display: wp > 0 ? 'block' : 'none' });
+  $$('#oneplace .mask > span').forEach((el, i) => rise(el, bt, 2.1 + 0.4 * i, 0.5, 3.35));
+
+  // the mark assembles where the components vanished, then the wordmark
+  $$('path', S.logoMark).forEach((p, i) => {
+    const e = outBack(seg(bt, 3.08 + i * 0.08, 3.4 + i * 0.08));
+    p.style.transformBox = 'fill-box';
+    p.style.transformOrigin = '50% 50%';
+    p.style.transform = `scale(${e})`;
+    p.style.opacity = clamp(e * 3);
+  });
+  const wm = outExpo(seg(bt, 3.5, 4.0));
+  css($('#wordmark'), { clipPath: `inset(-10% ${(1 - wm) * 100}% -20% 0)`, transform: `translateX(${(1 - wm) * -40}px)` });
+  const up = inOut(seg(bt, 4.0, 4.4)), gone = inExpo(seg(bt, 4.95, 5.3));
+  css($('#logo'), { transform: `translateY(${-360 * up - 160 * gone}px) scale(${lerp(1, 0.4, up)})`, opacity: 1 - gone });
+
+  // headline, then the match cut into the real hero H1
+  $$('#ihl .mask > span').forEach((el, i) => rise(el, bt, 4.25 + 0.25 * i, 0.5));
+  const h = META.landing.h1, k = 4 / 3;
+  const m = inOut(seg(bt, 4.95, 5.5));
+  css($('#ihl'), { transform: `translate(${(h.x * k - 269) * m}px, ${(h.y * k - 330) * m}px) scale(${lerp(1, (h.size * k) / 200, m)})` });
+  $('#s1').style.background = bt < 2.15 ? '' : '#fff';  // the wipe covers the frame by 2.15
+}
+
+function sceneLanding(bt) {
+  css($('#s2'), { opacity: seg(bt, 5.42, 5.55) });
+  // camera: tilt the page back as the preview lifts off; then settle and dive into the click
+  const lift = inOut(seg(bt, 5.55, 6.0)) * (1 - inOut(seg(bt, 6.85, 7.25)));
+  const dive = inExpo(seg(bt, 7.65, 8.0));
+  const dl = center(META.landing.demoLink);
+  css($('#landCam'), {
+    transformOrigin: `${dl[0] * 4 / 3}px ${dl[1] * 4 / 3}px`,
+    transform: `rotateX(${lift * 9}deg) scale(${(1 - 0.06 * lift) * (1 + dive * 3)})`,
+    filter: dive > 0.05 ? `blur(${dive * 4}px)` : '',  // motion blur does the rest
+  });
+  T(S.preview, { z: lift * 170, ry: -lift * 9, rx: -lift * 4, s: 1 + lift * 0.02 });
+  S.preview.style.boxShadow = `0 ${20 + 60 * lift}px ${40 + 80 * lift}px rgb(4 35 79 / ${10 + 22 * lift}%)`;
+  // the real figures count up on the beat
+  S.preview.nums.forEach((d, i) => {
+    const b0 = 5.75 + 0.25 * i;
+    const p = seg(bt, b0, b0 + 0.4);
+    const f = d.fmt;
+    d.textContent = f.pre + (f.val * outCubic(p)).toFixed(f.dec) + f.suf;
+    d.style.transform = `scale(${1 + 0.18 * Math.sin(Math.PI * seg(bt, b0, b0 + 0.3))})`;
+    d.style.transformOrigin = '0 70%';
+  });
+  // cursor: Explore the demo
+  const tgt = [dl[0] - 45, dl[1] + 3];
+  drive(S.landCursor, [[6.5, 760, 900], [7.2, ...tgt], [8, ...tgt]], [7.5], bt, seg(bt, 6.5, 6.65), 46);
+  S.demoHover.style.opacity = seg(bt, 7.1, 7.2);
+}
+
+function sceneApp(bt) {
+  // window entrance on the drop, gentle drift, exit
+  const ent = outExpo(seg(bt, 8, 8.6)), ex = inExpo(seg(bt, 19.5, 20));
+  const drift = Math.sin((bt - 8) * 0.5) * 1.6;
+  let push = { s: 1, ox: 720, oy: 405 };
+  const anaPush = inOut(seg(bt, 16, 16.6)) * (1 - inOut(seg(bt, 16.7, 17)));
+  const smsPush = inOut(seg(bt, 18.4, 19.1)) * (1 - inOut(seg(bt, 19.3, 19.6)));
+  const ch = center(META.app.analytics.cardHover), sm = center(META.app.sms.components.metric[0]);
+  const wrap = $('#appWrap');
+  const baseS = 0.94;
+  let tf = `translate3d(${ex * 1500}px, ${(1 - ent) * 120}px, ${(1 - ent) * -700}px) rotateY(${lerp(-38, -4, ent) + drift * 0.6 + ex * 25}deg) rotateX(${3 * ent}deg) scale(${baseS})`;
+  if (anaPush > 0 || smsPush > 0) {
+    const [px, py, k] = anaPush > 0 ? [ch[0], ch[1], 1 + 0.28 * anaPush] : [sm[0], sm[1], 1 + 0.55 * smsPush];
+    tf += ` translate(${px}px, ${py}px) scale(${k}) translate(${-px}px, ${-py}px)`;
+  }
+  wrap.style.transform = tf;
+  wrap.style.opacity = clamp(ent * 3) * (1 - seg(bt, 19.8, 20));
+  $('#appPaper').style.opacity = 1;
+
+  // left column: module copy
+  const idx = clamp(Math.floor((bt - 8) / 3), 0, 3);
+  $('#modIndex').textContent = `0${idx + 1} / 04`;
+  css($('#modIndex'), { opacity: seg(bt, 8.2, 8.5) * (1 - seg(bt, 19.4, 19.6)) });
+  css($('#modEyebrow'), { opacity: seg(bt, 8.1, 8.4) * (1 - seg(bt, 19.4, 19.6)) });
+  const names = $$('#modName .mask > span'), lines = $$('#modLine .mask > span');
+  TL.modules.forEach((m, i) => {
+    rise(names[i], bt, m.start + 0.05, 0.5, m.start + 2.95);
+    rise(lines[i], bt, m.start + 0.3, 0.6, m.start + 2.95);
+  });
+  $$('#modTrack i').forEach((t, i) => (t.style.background = bt >= TL.modules[i].start ? 'var(--teal)' : 'var(--line)'));
+  css($('#modTrack'), { opacity: seg(bt, 8.2, 8.5) * (1 - seg(bt, 19.4, 19.6)) });
+  // the left column steps back while the window punches in
+  const colFade = 1 - Math.max(anaPush, smsPush);
+  css($('#modName'), { opacity: colFade });
+  css($('#modLine'), { opacity: colFade });
+  ['#modIndex', '#modTrack', '#modEyebrow'].forEach((id) => { $(id).style.opacity = parseFloat($(id).style.opacity) * colFade; });
+
+  // shell: sidebar slides in, topbar drops, then crossfades per module
+  TL.modules.forEach((m, i) => {
+    const mod = S.app[m.id];
+    const on = i === 0 ? 1 : seg(bt, m.start - 0.1, m.start + 0.05);
+    const off = i < 3 ? seg(bt, TL.modules[i + 1].start - 0.1, TL.modules[i + 1].start + 0.05) : 0;
+    const vis = on * (1 - off);
+    if (i === 0) {
+      T(mod.sidebar, { x: -(1 - outExpo(seg(bt, 8.05, 8.45))) * 280, o: vis });
+      T(mod.topbar, { y: -(1 - outExpo(seg(bt, 8.15, 8.5))) * 100, o: vis });
+    } else {
+      T(mod.sidebar, { o: vis });
+      T(mod.topbar, { o: vis });
+    }
+    // components assemble from depth on 16ths, leave just before the next module
+    const s0 = m.start;
+    mod.all.forEach((w, k) => {
+      const b = s0 + 0.25 + k * 0.0625;
+      const p = outExpo(seg(bt, b, b + 0.4));
+      const q = inExpo(seg(bt, s0 + 2.72 + (mod.all.length - k) * 0.012, s0 + 2.95));
+      const hidden = bt < b - 0.01 || q >= 1;
+      if (hidden) { w.style.opacity = 0; return; }
+      T(w, { z: (1 - p) * 520 - q * 380, y: (1 - p) * 40, rx: (1 - p) * -22, o: clamp(p * 2.5) * (1 - q), blur: (1 - p) * 6 + q * 6 });
+    });
+  });
+
+  // ---- module beats
+  const adm = S.app.admissions, att = S.app.attendance, ana = S.app.analytics, sms = S.app.sms;
+  adm.parts.metric.forEach((w, k) => setCount(w, seg(bt, 9.0 + k * 0.06, 9.75 + k * 0.06)));
+  // attendance: rows are empty until "Refresh attendance" is clicked
+  att.parts.metric.forEach((w) => setCount(w, seg(bt, 12.75, 13.5)));
+  const attOut = inExpo(seg(bt, 13.72, 13.95));
+  att.parts.row.forEach((w, k) => {
+    const b = 12.75 + 0.25 * k;
+    const p = outExpo(seg(bt, b, b + 0.3));
+    T(w, { x: (1 - p) * -60, z: -attOut * 380, o: p * (1 - attOut) });
+  });
+  att.buttonHover.style.opacity = seg(bt, 12.25, 12.35) * (1 - seg(bt, 12.7, 12.85));
+  T(att.buttonHover, { s: 1 - 0.015 * Math.max(0, 1 - Math.abs(bt - 12.5) / 0.15) });
+  // analytics: averages count, then the dropping class is opened
+  ana.parts.card.forEach((w, k) => setCount(w, seg(bt, 14.75 + k * 0.08, 15.5 + k * 0.08)));
+  ana.cardHover.style.opacity = bt >= 14 && bt < 17 ? seg(bt, 15.8, 15.9) * (1 - seg(bt, 16.8, 16.95)) : 0;
+  // sms: balance refreshes after the click
+  sms.parts.metric.forEach((w) => setCount(w, seg(bt, 18.25, 19.0)));
+  sms.buttonHover.style.opacity = bt >= 17 && bt < 20 ? seg(bt, 17.8, 17.9) * (1 - seg(bt, 18.3, 18.45)) : 0;
+  if (bt < 11 || bt >= 14) att.buttonHover.style.opacity = 0;
+
+  // cursor through the app (page coordinates)
+  const ab = center(META.app.attendance.button), sb = center(META.app.sms.button);
+  const keys = [[11.6, 1500, 900], [12.3, ab[0] + 40, ab[1] + 4], [12.8, ab[0] + 40, ab[1] + 4], [13.6, 1100, 760],
+    [15.4, 900, 700], [15.85, ch[0] - 10, ch[1] + 20], [16.7, ch[0] - 10, ch[1] + 20],
+    [17.3, 1300, 420], [17.85, sb[0] - 20, sb[1] + 4], [18.6, sb[0] - 20, sb[1] + 4], [19.3, 1500, 760]];
+  const vis = bt < 11.6 ? 0 : bt < 13.7 ? seg(bt, 11.6, 11.75) * (1 - seg(bt, 13.5, 13.7))
+    : bt < 16.9 ? seg(bt, 15.3, 15.45) * (1 - seg(bt, 16.75, 16.9)) : seg(bt, 17.25, 17.4) * (1 - seg(bt, 19.2, 19.35));
+  drive(S.appCursor, keys, [12.5, 16, 18], bt, vis, 56);
+}
+
+function scenePackages(bt) {
+  css($('#s4'), { clipPath: `inset(${(1 - inOut(seg(bt, 19.6, 20))) * 100}% 0 0 0)` });
+  css($('#pkgEyebrow'), { opacity: seg(bt, 20, 20.3) * (1 - seg(bt, 23.6, 23.8)) });
+  rise($('#pkgHl .mask > span'), bt, 20, 0.6, 23.85);
+  const sc = S.pkgScale, gap = 33, row = (i) => 110 + i * (400 + gap);
+  const deck = [-4, 2, -1, 3], fanA = [-16, -5.5, 5.5, 16], fanX = [-210, -70, 70, 210];
+  const lift = outBack(seg(bt, 22.3, 22.65));
+  S.pkgs.forEach((w, i) => {
+    const p = META.landing.packages[i];
+    const drop = outExpo(seg(bt, 20 + i * 0.06, 20.4 + i * 0.06));
+    const fan = inOut(seg(bt, 20.6, 21.35)), flat = inOut(seg(bt, 21.5, 22.2));
+    const out = inExpo(seg(bt, 23.55 + i * 0.04, 23.95));
+    const cx = 960 - (p.w * sc) / 2;
+    const x = lerp(cx + fanX[i] * fan, row(i), flat) - p.w / 2 + (p.w * sc) / 2;
+    const y = 330 - p.h + p.h * sc;  // cards scale from their bottom edge
+    const up = i === 2 ? lift : 0;
+    css(w, { left: '0px', top: '0px' });
+    T(w, {
+      x, y: y - (1 - drop) * 1000 - up * 26 - out * 1100, z: up * 90,
+      rz: lerp(lerp(deck[i], fanA[i], fan), 0, flat), s: sc * (1 + up * 0.04), o: 1,
+    });
+    w.style.zIndex = i === 2 ? 5 : i;
+    w.style.filter = up > 0.01
+      ? `drop-shadow(0 ${30 + 30 * up}px ${50 + 30 * up}px rgb(0 159 163 / ${18 + 18 * up}%))`
+      : '';
+  });
+  // cursor on "Discuss this package" inside the recommended card (card coordinates)
+  const d = META.landing.discuss;
+  const tgt = [d.x + 80, d.y + 14];
+  drive(S.pkgCursor, [[22.4, 470, 700], [22.85, ...tgt], [23.4, ...tgt]], [23], bt, seg(bt, 22.4, 22.55) * (1 - seg(bt, 23.4, 23.55)), 40);
+  S.discussHover.style.opacity = seg(bt, 22.8, 22.9);
+}
+
+function sceneRollout(bt) {
+  const inn = inOut(seg(bt, 23.55, 24)), out = inExpo(seg(bt, 27.6, 28));
+  css($('#s5'), { transform: `translateY(${(1 - inn) * 1080}px) scale(${1 - out * 0.08})`, opacity: 1 - out });
+  css($('#rollEyebrow'), { opacity: seg(bt, 24, 24.3) });
+  rise($('#rollHl .mask > span'), bt, 24, 0.6);
+  const sc = 1.28, xs = (i) => 110 + i * 430, ys = (i) => 380 + (i % 2) * 70;
+  const pts = [];
+  S.steps.forEach((w, i) => {
+    const r = META.landing.rollout[i];
+    const b = 24.5 + 0.5 * i;
+    const p = outExpo(seg(bt, b, b + 0.4));
+    css(w, { left: '0px', top: '0px', transformOrigin: '0 0' });
+    T(w, { x: xs(i), y: ys(i) + (1 - p) * 60, ry: (1 - p) * 70, s: sc, o: clamp(p * 2.5) });
+    pts.push([xs(i) + 38 * sc, ys(i) + 36 * sc]);
+  });
+  // a dashed teal path draws through the step numbers as they arrive
+  const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0]},${p[1]}`).join(' ');
+  const pathEl = $('#rollPath');
+  pathEl.setAttribute('d', d);
+  const prog = inOut(seg(bt, 24.6, 26.2));
+  css($('#rollLine'), { clipPath: `inset(0 ${100 - (pts[0][0] + prog * (pts[3][0] - pts[0][0])) / 19.2}% 0 0)` });
+  css($('#rollSub'), { opacity: seg(bt, 26.5, 26.9), transform: `translateY(${(1 - outExpo(seg(bt, 26.5, 27))) * 24}px)` });
+}
+
+function sceneCta(bt) {
+  $$('#ctaHl .mask > span').forEach((el, i) => rise(el, bt, 28 + 0.5 * i, 0.6));
+  css($('#ctaSub'), { opacity: seg(bt, 29, 29.4), transform: `translateY(${(1 - outExpo(seg(bt, 29, 29.6))) * 24}px)` });
+  const c0 = META.landing.conversation[0], bk = META.landing.book;
+  const cp = outExpo(seg(bt, 28.75, 29.3));
+  const sc = 1.7;
+  const cv = $('#convo');
+  cv.style.transformOrigin = '0 0';
+  T(cv, { x: (1 - cp) * 200, z: (1 - cp) * -300, ry: (1 - cp) * -25, s: sc, o: clamp(cp * 2) });
+  const press = Math.max(0, 1 - Math.abs(bt - 30) / 0.16);
+  S.bookHover.style.opacity = seg(bt, 29.75, 29.85);
+  T(S.bookHover, { s: 1 - 0.04 * press, o: seg(bt, 29.75, 29.85) });
+  const tgt = [bk.x + bk.w * 0.62, bk.y + bk.h * 0.6];
+  drive(S.ctaCursor, [[29.2, 360, 330], [29.8, ...tgt], [30.6, ...tgt]], [30], bt, seg(bt, 29.2, 29.35) * (1 - seg(bt, 30.45, 30.55)), 36);
+
+  // end card grows out of the button
+  const bx = 1200 + (bk.x + bk.w * 0.62) * sc, by = 330 + (bk.y + bk.h * 0.6) * sc;
+  const ec = inOut(seg(bt, 30.15, 30.65));
+  show($('#end'), ec > 0);
+  css($('#end'), { clipPath: `circle(${ec * 2300}px at ${bx}px ${by}px)` });
+  const from = [[-160, -140], [160, -140], [-180, 140], [180, 140]];
+  $$('path', S.endMark).forEach((p, i) => {
+    const e = outExpo(seg(bt, 30.5 + i * 0.1, 30.95 + i * 0.1));
+    p.style.transform = `translate(${(1 - e) * from[i][0]}px, ${(1 - e) * from[i][1]}px)`;
+    p.style.opacity = clamp(e * 3);
+  });
+  const wm = outExpo(seg(bt, 30.95, 31.4));
+  css($('#endlogo .wm'), { clipPath: `inset(-10% ${(1 - wm) * 100}% -20% 0)` });
+  const hold = seg(bt, 30.5, 32);
+  css($('#endlogo'), { transform: `scale(${1 + 0.03 * hold})` });
+  css($('#endbar'), { transform: `scaleX(${outExpo(seg(bt, 30.6, 31.6))})` });
+  [['#endtag', 31.15], ['#endurl', 31.35], ['#endmail', 31.55]].forEach(([s, b]) =>
+    css($(s), { opacity: seg(bt, b, b + 0.3), transform: `translateY(${(1 - outExpo(seg(bt, b, b + 0.45))) * 24}px)` }));
+}
+
+function render(t) {
+  const bt = t / B;
+  let punch = 0;
+  for (const h of TL.impacts) { const dt = t - h * B; if (dt >= 0) punch += 0.018 * Math.exp(-dt * 10); }
+  for (const h of [...TL.clicks, ...TL.hookWords]) { const dt = t - h * B; if (dt >= 0) punch += 0.007 * Math.exp(-dt * 12); }
+  $('#stage').style.transform = `scale(${1 + punch})`;
+  let flash = 0;
+  for (const h of [8]) { const dt = t - h * B; if (dt >= 0) flash += 0.4 * Math.exp(-dt * 12); }
+  $('#flash').style.opacity = flash;
+
+  const on = (id, a, b) => { const v = bt >= a && bt < b; show($(id), v); return v; };
+  if (on('#s1', 0, 5.56)) sceneHook(bt);
+  if (on('#s2', 5.42, 8.02)) sceneLanding(bt);
+  if (on('#s3', 7.98, 20.02)) sceneApp(bt);
+  if (on('#s4', 19.6, 24.02)) scenePackages(bt);
+  if (on('#s5', 23.55, 28.02)) sceneRollout(bt);
+  if (on('#s6', 27.98, 99)) sceneCta(bt);
+}
+
+window.render = render;
+window.ready = (async () => {
+  build();
+  await document.fonts.ready;
+  await Promise.all([...document.images].map((i) => i.decode().catch(() => {})));
+  // where each piece of the mark sits on screen once the logo is laid out (for the hook hand-off)
+  show($('#s1'), true);
+  S.pieceTargets = $$('path', S.logoMark).map((p) => { const r = p.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; });
+  render(0);
+  return true;
+})();
+</script>
+</body>
+</html>
