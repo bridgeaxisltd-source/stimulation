@@ -598,8 +598,9 @@ function scenePackages(bt) {
 function sceneRollout(bt) {
   const inn = inOut(seg(bt, 23.55, 24)), out = inCubic(seg(bt, 27.6, 28));
   css($('#s5'), { transform: `translateY(${(1 - inn) * 1080}px) scale(${1 - out * 0.08})`, opacity: 1 - out });
-  css($('#rollEyebrow'), { opacity: seg(bt, 24, 24.3) });
-  rise($('#rollHl .mask > span'), bt, 24, 0.6);
+  // the headline rides in with the slide so the scene never arrives empty
+  css($('#rollEyebrow'), { opacity: seg(bt, 23.8, 24.1) });
+  rise($('#rollHl .mask > span'), bt, 23.8, 0.6);
   const sc = 1.28, xs = (i) => 110 + i * 430, ys = (i) => 380 + (i % 2) * 70;
   const pts = [];
   S.steps.forEach((w, i) => {
@@ -615,7 +616,7 @@ function sceneRollout(bt) {
   const pathEl = $('#rollPath');
   pathEl.setAttribute('d', d);
   const prog = inOut(seg(bt, 24.6, 26.2));
-  css($('#rollLine'), { clipPath: `inset(0 ${100 - (pts[0][0] + prog * (pts[3][0] - pts[0][0])) / 19.2}% 0 0)` });
+  css($('#rollLine'), { clipPath: `inset(0 ${100 - (pts[0][0] + prog * (pts[3][0] - pts[0][0])) / 19.2}% 0 0)`, opacity: prog > 0 ? 1 : 0 });  // the round cap would show as a dot before drawing starts
   css($('#rollSub'), { opacity: seg(bt, 26.5, 26.9), transform: `translateY(${(1 - outExpo(seg(bt, 26.5, 27))) * 24}px)` });
 }
 
